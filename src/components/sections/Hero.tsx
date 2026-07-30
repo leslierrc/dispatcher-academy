@@ -159,7 +159,7 @@ export default function Hero() {
         <div className="absolute inset-0 grid-bg" />
 
         <motion.div
-          className="absolute top-8 right-8 z-20 flex items-center gap-3 bg-[#1a1817]/60 backdrop-blur-md border border-white/10 rounded-full px-5 py-2.5"
+          className="absolute bottom-24 right-8 z-20 flex items-center gap-3 bg-[#1a1817]/60 backdrop-blur-md border border-white/10 rounded-full px-5 py-2.5"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
@@ -320,7 +320,7 @@ export default function Hero() {
                 <div key={s.label} className="flex items-center gap-3">
                   <div className="font-heading text-[28px] md:text-[34px] leading-none tabular-nums text-accent-300">
                     {i < 2 ? (
-                      <CountUp end={s.count} duration={1.5} suffix={s.suffix} />
+                      <CountUp end={s.count} duration={2.5} suffix={s.suffix} />
                     ) : (
                       <>
                         {s.count}
