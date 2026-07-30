@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="200" height="200" role="img" aria-label="7 Digital LLC">
+  <title>7 Digital — monograma negativo</title>
+  <circle cx="50" cy="50" r="50" fill="#241F1E"></circle>
+  <circle cx="50" cy="50" r="41" fill="none" stroke="#F7EDEA" stroke-width="1.5"></circle>
+  <g fill="none" stroke="#F7EDEA" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M35 42H60"></path>
+    <path d="M60 42L48 76"></path>
+    <path d="M60 42C74 46 77 68 48 76"></path>
+  </g>
+</svg>

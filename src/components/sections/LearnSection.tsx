@@ -58,7 +58,7 @@ export default function AboutSection() {
             variants={reveal}
             initial="hidden"
             animate={isInView ? "show" : "hidden"}
-            className="text-accent-700"
+            className="text-accent-300"
           >
             {t.about.kicker}
           </motion.h6>

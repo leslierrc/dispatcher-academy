@@ -11,10 +11,12 @@ export function useSmoothScroll() {
 
     const initLenis = async () => {
       try {
-        const Lenis = (await import("lenis")).default;
+        // lenis may not have types in this project; ignore TypeScript module-not-found for dynamic import
+        // @ts-ignore
+        const { default: Lenis } = (await import("lenis")) as any;
         const lenis = new Lenis({
           duration: 1.8,
-          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
           touchMultiplier: 1,
         });
 

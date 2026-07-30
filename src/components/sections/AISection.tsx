@@ -18,7 +18,7 @@ export default function WhySection() {
         style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(380px, 100%), 1fr))" }}
       >
         <div className="md:sticky md:top-[150px] py-[120px]">
-          <h6 className="text-accent-700">{t.why.kicker}</h6>
+          <h6 className="text-accent-300">{t.why.kicker}</h6>
           <h2 className="font-heading font-normal leading-[1.08] tracking-[-0.018em] mt-2.5 max-w-[15ch] text-[clamp(32px,3.1vw,46px)]">
             {t.why.title}
           </h2>

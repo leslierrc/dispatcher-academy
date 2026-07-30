@@ -54,7 +54,7 @@ export default function RoleSection() {
             variants={reveal}
             initial="hidden"
             animate={isInView ? "show" : "hidden"}
-            className="text-accent-700"
+            className="text-accent-300"
           >
             {t.role.kicker}
           </motion.h6>
@@ -117,7 +117,7 @@ export default function RoleSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.9 }}
-          className="text-accent-700"
+          className="text-accent-300"
         >
           {t.role.opportunityKicker}
         </motion.h6>
@@ -160,7 +160,7 @@ export default function RoleSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="font-heading text-2xl mt-16 max-w-[36ch] mx-auto text-accent-700"
+          className="font-heading text-2xl mt-16 max-w-[36ch] mx-auto text-accent-300"
         >
           {t.role.closingLine}
         </motion.p>

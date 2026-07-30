@@ -1,237 +1,362 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   motion,
   useScroll,
   useTransform,
-  useMotionValue,
+  AnimatePresence,
 } from "framer-motion";
 import CountUp from "react-countup";
 import { useI18n } from "@/hooks/use-i18n";
-import { heroImage, carlaChipImage, CARLA_FULL_NAME } from "@/i18n/translations";
 
-const HERO_VIDEO = "/videos/hero.mp4";
+const ROTATING_WORDS_ES = [
+  { word: "APRENDER", desc: "El oficio que te da herramientas reales" },
+  { word: "CRECER", desc: "De donde estás a donde quieres llegar" },
+  { word: "GANAR", desc: "Ingresos propios en USD desde tu casa" },
+  { word: "VIVIR", desc: "La libertad de trabajar desde cualquier lugar" },
+];
+
+const ROTATING_WORDS_EN = [
+  { word: "LEARN", desc: "The craft that gives you real tools" },
+  { word: "GROW", desc: "From where you are to where you want to be" },
+  { word: "EARN", desc: "Your own income in USD from home" },
+  { word: "LIVE", desc: "The freedom to work from anywhere" },
+];
+
+function useRotatingWord(locale: string) {
+  const words = locale === "en" ? ROTATING_WORDS_EN : ROTATING_WORDS_ES;
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % words.length);
+    }, 2800);
+    return () => clearInterval(interval);
+  }, [words.length]);
+
+  return words[index];
+}
+
+const charReveal = (delayBase: number) => ({
+  initial: {
+    opacity: 0,
+    y: 80,
+    scaleY: 2.4,
+    scaleX: 0.3,
+    filter: "blur(18px)",
+  },
+  animate: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scaleY: 1,
+    scaleX: 1,
+    filter: "blur(0px)",
+    transition: {
+      delay: delayBase + i * 0.028,
+      type: "spring" as const,
+      damping: 11,
+      stiffness: 110,
+      mass: 0.6,
+    },
+  }),
+});
+
+const rotatingChar = {
+  initial: {
+    opacity: 0,
+    y: 50,
+    rotateZ: 8,
+    scale: 0.4,
+    filter: "blur(10px)",
+  },
+  animate: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    rotateZ: 0,
+    scale: 1,
+    filter: "blur(0px)",
+    transition: {
+      delay: i * 0.032,
+      type: "spring" as const,
+      damping: 10,
+      stiffness: 130,
+      mass: 0.5,
+    },
+  }),
+  exit: (i: number) => ({
+    opacity: 0,
+    y: -60,
+    rotateZ: -10,
+    scale: 0.6,
+    filter: "blur(14px)",
+    transition: {
+      delay: i * 0.015,
+      duration: 0.35,
+      ease: [0.43, 0.13, 0.23, 0.96] as [number, number, number, number],
+    },
+  }),
+};
 
 export default function Hero() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const sectionRef = useRef<HTMLElement>(null);
+  const rotating = useRotatingWord(locale);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start start", "end start"],
+    offset: ["start start", "end end"],
   });
-  const scrollP = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.22]);
+  const bgBrightness = useTransform(scrollYProgress, [0.55, 1], [1, 0.55]);
+  const contentOpacity = useTransform(scrollYProgress, [0.12, 0.45], [1, 0]);
+  const contentY = useTransform(scrollYProgress, [0, 0.45], [0, -70]);
+  const scrimOpacity = useTransform(scrollYProgress, [0.5, 1], [0, 0.7]);
+  const cueScrollOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+  const bgFilter = useTransform(bgBrightness, (b) => `brightness(${b})`);
 
-  const plateScale = useTransform(scrollP, (p) => 1 - p * 0.05);
-  const rotateY = useTransform([scrollP, mx], ([p, m]) => -7 + (p as number) * 7 + (m as number) * 6);
-  const rotateX = useTransform([scrollP, my], ([p, m]) => 3 - (p as number) * 3 - (m as number) * 5);
-  // The frame (border + badges) only ever translates — never rotates — so it stays crisp.
-  // The mouse-reactive "card following the cursor" feel now lives here instead of on the
-  // rotation, with the photo's own tilt (rotateX/rotateY above) adding the depth on top.
-  const plateY = useTransform([scrollP, my], ([p, m]) => (p as number) * 74 + (m as number) * -16);
-  const plateX = useTransform(mx, (m) => m * 22);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    mx.set(e.clientX / window.innerWidth - 0.5);
-    my.set(e.clientY / window.innerHeight - 0.5);
-  };
-
-  const words = t.hero.title.split(" ");
+  const isES = locale === "es";
+  const prefix = isES ? "LA PLATAFORMA" : "THE PLATFORM";
+  const preposition = isES ? "PARA" : "TO";
+  const tagline = isES
+    ? "Doce módulos en español, con plantillas, práctica real y acompañamiento hasta tu primera carga despachada."
+    : "Twelve modules in Spanish, with templates, real practice and support until your first dispatched load.";
 
   return (
-    <section
-      id="top"
-      ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      className="relative min-h-[104vh] overflow-hidden"
-    >
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover opacity-45"
-          style={{ filter: "sepia(0.25) saturate(0.7) contrast(1.05)" }}
+    <section id="top" ref={sectionRef} className="relative h-[220vh]">
+      <div className="sticky top-0 h-screen min-h-[700px] max-h-[960px] overflow-hidden">
+        <motion.div
+          className="absolute inset-0"
+          style={{ scale: bgScale, filter: bgFilter }}
         >
-          <source src={HERO_VIDEO} type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-bg/50" />
-        <div
-          className="absolute inset-x-0 bottom-0 h-[280px]"
-          style={{ background: "linear-gradient(to bottom, transparent, var(--color-bg))" }}
-        />
-      </div>
-
-      <div
-        className="relative grid gap-14 items-center px-6 lg:px-14 pt-[150px] pb-24 max-w-[1440px] mx-auto"
-        style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(440px, 100%), 1fr))" }}
-      >
-        <motion.div
-          className="absolute rounded-full border border-divider pointer-events-none hidden md:block"
-          style={{ top: "6%", right: "4%", width: 520, height: 520 }}
-          animate={{ y: [0, -22, 0], rotate: [0, 4, 0] }}
-          transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute rounded-full border border-accent pointer-events-none hidden md:block"
-          style={{ top: "34%", right: "26%", width: 150, height: 150 }}
-          animate={{ scale: [0.85, 1.7], opacity: [0.5, 0] }}
-          transition={{ duration: 4.2, repeat: Infinity, ease: "easeOut" }}
-        />
-        <motion.div
-          className="absolute rounded-full border border-divider pointer-events-none hidden md:block"
-          style={{ bottom: "8%", left: -90, width: 340, height: 340 }}
-          animate={{ y: [0, 22, 0], rotate: [0, -4, 0] }}
-          transition={{ duration: 17, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-      <div className="relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2.5 border border-accent rounded-full px-4 py-1.5 text-[11.5px] tracking-[0.13em] uppercase text-accent-700 font-heading"
-        >
-          <span className="w-[5px] h-[5px] rounded-full bg-accent inline-block" />
-          {t.hero.kicker}
+          <div className="absolute inset-0 overflow-hidden">
+            <img
+              src="/images/hero.webp"
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </div>
         </motion.div>
 
-        <h1 className="font-heading font-normal leading-[0.98] tracking-[-0.022em] my-6 max-w-[15ch] text-[clamp(50px,5.4vw,82px)] text-balance">
-          {words.map((w, i) => (
-            <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.28em]">
-              <motion.span
-                className="inline-block"
-                initial={{ y: "105%", rotate: 3 }}
-                animate={{ y: 0, rotate: 0 }}
-                transition={{ duration: 1.05, delay: 0.12 + i * 0.055, ease: [0.16, 1, 0.3, 1] }}
-              >
-                {w}
-              </motion.span>
-            </span>
-          ))}
-        </h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="text-[18.5px] leading-[1.62] max-w-[480px] mb-9 text-text/80"
-        >
-          {t.hero.subtitle}
-        </motion.p>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1a1817]/80 via-[#1a1817]/50 to-[#1a1817]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1a1817]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1817]/70 via-transparent to-[#1a1817]/20" />
 
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.68, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-wrap gap-4 items-center"
-        >
-          <motion.a
-            href="#precios"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="text-[15px] px-7 py-3.5 border border-accent text-accent font-heading font-semibold rounded-md hover:bg-accent/10 transition-colors"
-          >
-            {t.hero.cta1}
-          </motion.a>
-          <motion.a
-            href="#curricula"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="text-[15px] px-7 py-3.5 border border-divider text-text font-heading font-semibold rounded-md hover:bg-text/5 transition-colors"
-          >
-            {t.hero.cta2}
-          </motion.a>
-        </motion.div>
-
-        <div className="flex items-center gap-2.5 mt-[70px] text-[11px] tracking-[0.14em] uppercase text-text/45 font-heading">
-          <motion.span
-            className="w-px h-[26px] bg-divider inline-block"
-            animate={{ y: [0, 9, 0], opacity: [0.35, 1, 0.35] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-          />
-          {t.hero.scrollCue}
-        </div>
-      </div>
-
-      <div className="relative z-[1]" style={{ perspective: 1400 }}>
-        <motion.div
-          className="relative"
+          className="absolute inset-0"
           style={{
-            x: plateX,
-            y: plateY,
-            scale: plateScale,
-            transformStyle: "preserve-3d",
-            willChange: "transform",
+            background:
+              "radial-gradient(ellipse at 50% 30%, rgba(168,114,122,0.08), transparent 60%)",
           }}
+        />
+
+        <motion.div
+          className="absolute inset-0 bg-black z-[5]"
+          style={{ opacity: scrimOpacity }}
+        />
+
+        <div className="absolute inset-0 grid-bg" />
+
+        <motion.div
+          className="absolute top-8 right-8 z-20 flex items-center gap-3 bg-[#1a1817]/60 backdrop-blur-md border border-white/10 rounded-full px-5 py-2.5"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
         >
-          {/* Static frame — never rotates, so its border/outline always stays crisp. */}
-          <div className="plate-frame relative overflow-hidden rounded-[5px]" style={{ height: 600 }}>
-            {/* Only the photo itself tilts in 3D; scaled up slightly so rotation never reveals empty corners. */}
+          <div className="font-heading text-[24px] leading-none tabular-nums text-accent-300">
+            <CountUp
+              end={500}
+              duration={1.5}
+              enableScrollSpy
+              scrollSpyOnce
+              suffix="+"
+            />
+          </div>
+          <div className="text-[10px] tracking-[0.12em] uppercase text-text/60 leading-tight font-accent">
+            {isES ? "Alumnos" : "Students"}
+            <br />
+            {isES ? "formados" : "trained"}
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="relative z-10 h-full flex flex-col justify-center px-6 lg:px-14 max-w-[1440px] mx-auto"
+          style={{ y: contentY, opacity: contentOpacity }}
+        >
+          <div className="max-w-[900px]">
             <motion.div
-              className="absolute inset-0"
-              style={{
-                rotateY,
-                rotateX,
-                scale: 1.12,
-                transformStyle: "preserve-3d",
-                willChange: "transform",
-                backfaceVisibility: "hidden",
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.9,
+                delay: 0.15,
+                ease: [0.16, 1, 0.3, 1],
               }}
+              className="inline-flex items-center gap-2.5 border border-accent/40 rounded-full px-4 py-1.5 text-[11px] tracking-[0.18em] uppercase text-accent-300 font-accent mb-8"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={heroImage.src}
-                alt={t.hero.title}
-                className="w-full h-full object-cover"
-                style={{ filter: "sepia(0.22) saturate(0.82) contrast(1.05)" }}
-              />
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              7 DIGITAL LLC &middot;{" "}
+              {isES
+                ? "CERTIFICACIÓN EN DESPACHO DE FLETES"
+                : "FREIGHT DISPATCH CERTIFICATION"}
+            </motion.div>
+
+            <h1 className="font-heading font-light leading-[0.92] tracking-[-0.03em] text-balance">
+              <span className="text-[clamp(52px,7.5vw,110px)] block text-white">
+                {prefix.split("").map((ch, i) => (
+                  <motion.span
+                    key={i}
+                    variants={charReveal(0.2)}
+                    initial="initial"
+                    animate="animate"
+                    custom={i}
+                    className="inline-block"
+                  >
+                    {ch === " " ? "\u00A0" : ch}
+                  </motion.span>
+                ))}
+              </span>
+
+              <span className="text-[clamp(52px,7.5vw,110px)] block mt-1">
+                {preposition.split("").map((ch, i) => (
+                  <motion.span
+                    key={i}
+                    variants={charReveal(0.55)}
+                    initial="initial"
+                    animate="animate"
+                    custom={i}
+                    className="inline-block text-white/70 font-accent font-semibold tracking-[0.08em]"
+                    style={{ fontSize: "clamp(28px,4vw,60px)" }}
+                  >
+                    {ch === " " ? "\u00A0" : ch}
+                  </motion.span>
+                ))}
+              </span>
+
+              <span className="text-[clamp(64px,9vw,130px)] block mt-2 leading-[0.95]">
+                <AnimatePresence mode="popLayout">
+                  <motion.span
+                    key={rotating.word}
+                    variants={rotatingChar}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    custom={0}
+                    className="inline-block bg-gradient-to-r from-accent-300 via-accent-200 to-accent-300 bg-clip-text text-transparent font-heading font-bold"
+                  >
+                    {rotating.word.split("").map((ch, i) => (
+                      <motion.span
+                        key={i}
+                        variants={rotatingChar}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        custom={i}
+                        className="inline-block"
+                      >
+                        {ch === " " ? "\u00A0" : ch}
+                      </motion.span>
+                    ))}
+                  </motion.span>
+                </AnimatePresence>
+              </span>
+            </h1>
+
+            <motion.p
+              key={rotating.desc}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="text-[15px] md:text-[17px] leading-[1.6] max-w-[560px] mt-5 text-text/60 font-body"
+            >
+              {rotating.desc}
+            </motion.p>
+
+            <motion.p
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="text-[14px] md:text-[16px] leading-[1.65] max-w-[540px] mt-1 text-text/45 font-body"
+            >
+              {tagline}
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-wrap gap-4 items-center mt-10"
+            >
+              <motion.a
+                href="#precios"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+                className="text-[15px] px-9 py-4 bg-accent-600 text-[#fbf7f5] font-heading font-semibold rounded-md hover:bg-accent-700 transition-colors shadow-lg shadow-accent/20 tracking-wide"
+              >
+                {isES ? "QUIERO EMPEZAR" : "ENROLL NOW"}
+              </motion.a>
+              <motion.a
+                href="#curricula"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+                className="text-[15px] px-9 py-4 border border-white/15 text-text/85 font-heading font-semibold rounded-md hover:bg-white/5 transition-colors backdrop-blur-sm tracking-wide"
+              >
+                {isES ? "VER PROGRAMA" : "VIEW PROGRAM"}
+              </motion.a>
             </motion.div>
           </div>
+        </motion.div>
 
+        <motion.div
+          className="absolute bottom-0 left-0 right-0 z-10"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.4, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="bg-[#1a1817]/60 backdrop-blur-md border-t border-white/5">
+            <div className="max-w-[1440px] mx-auto px-6 lg:px-14 py-4 flex justify-between gap-4 flex-wrap">
+              {t.stats.map((s, i) => (
+                <div key={s.label} className="flex items-center gap-3">
+                  <div className="font-heading text-[28px] md:text-[34px] leading-none tabular-nums text-accent-300">
+                    {i < 2 ? (
+                      <CountUp end={s.count} duration={1.5} suffix={s.suffix} />
+                    ) : (
+                      <>
+                        {s.count}
+                        {s.suffix}
+                      </>
+                    )}
+                  </div>
+                  <div className="text-[11px] md:text-[12px] leading-tight text-text/50 uppercase tracking-[0.08em] max-w-[10ch] font-accent">
+                    {s.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="absolute bottom-36 right-8 z-10 hidden md:flex flex-col items-center gap-2"
+          style={{ opacity: cueScrollOpacity }}
+        >
           <motion.div
-            className="absolute bottom-3.5 right-3.5 max-w-[calc(100%-28px)] bg-bg border border-divider rounded-md shadow-lg px-5.5 py-4 flex items-center gap-3.5"
-            style={{
-              z: 70,
-              backfaceVisibility: "hidden",
-              willChange: "transform",
-            }}
+            className="flex flex-col items-center gap-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }}
+            transition={{ duration: 1, delay: 1.6 }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={carlaChipImage.src}
-              alt={CARLA_FULL_NAME}
-              className="w-[46px] h-[46px] rounded-full object-cover flex-none"
+            <span className="text-[9px] tracking-[0.25em] uppercase text-white/50 font-accent vertical-rl [writing-mode:vertical-rl]">
+              {t.hero.scrollCue}
+            </span>
+            <motion.div
+              className="w-px h-16 bg-gradient-to-b from-accent to-transparent"
+              animate={{ opacity: [0.2, 1, 0.2] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             />
-            <div>
-              <div className="font-heading font-semibold text-[14.5px] whitespace-nowrap">{CARLA_FULL_NAME}</div>
-              <div className="text-[11px] opacity-60">{t.hero.cardRole}</div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="absolute top-3.5 left-3.5 bg-bg border border-accent rounded-md px-4.5 py-3 font-heading"
-            style={{
-              z: 110,
-              backfaceVisibility: "hidden",
-              willChange: "transform",
-            }}
-          >
-            <div className="text-[23px] tabular-nums text-accent-700">
-              <CountUp end={500} duration={1.5} enableScrollSpy scrollSpyOnce suffix="+" />
-            </div>
-            <div className="text-[10.5px] tracking-[0.1em] uppercase opacity-60">
-              {t.hero.chipStudents}
-            </div>
           </motion.div>
         </motion.div>
-      </div>
       </div>
     </section>
   );

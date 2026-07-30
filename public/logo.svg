@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 70" width="340" height="70" role="img" aria-label="7 Digital LLC">
+  <title>7 Digital — lockup horizontal</title>
+  <g transform="translate(4 5) scale(0.6)">
+  <circle cx="50" cy="50" r="47" fill="none" stroke="#8A5F67" stroke-width="1.5"></circle>
+  <g fill="none" stroke="#8A5F67" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 40H62"></path>
+    <path d="M62 40L49 79"></path>
+    <path d="M62 40C78 44 81 69 49 79"></path>
+  </g>
+  </g>
+  <rect x="82" y="17" width="1" height="36" fill="#DCC7C1"></rect>
+  <text x="102" y="43" font-family="&#39;Cormorant Garamond&#39;, Garamond, serif" font-size="28" font-weight="300" letter-spacing="6.7" fill="#241F1E">7 DIGITAL</text>
+</svg>

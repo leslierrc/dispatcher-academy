@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="200" height="200" role="img" aria-label="7 Digital LLC">
+  <title>7 Digital — monograma en medallón</title>
+  <circle cx="50" cy="50" r="47" fill="none" stroke="#8A5F67" stroke-width="1.5"></circle>
+  <g fill="none" stroke="#8A5F67" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 40H62"></path>
+    <path d="M62 40L49 79"></path>
+    <path d="M62 40C78 44 81 69 49 79"></path>
+  </g>
+</svg>

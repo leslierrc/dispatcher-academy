@@ -36,7 +36,7 @@ export default function TestimonialsSection() {
       <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden">
         <div className="flex items-end justify-between gap-7.5 px-6 lg:px-14 pb-11 max-w-[1440px] mx-auto w-full">
           <div>
-            <h6 className="text-accent-700">{t.testimonials.kicker}</h6>
+            <h6 className="text-accent-300">{t.testimonials.kicker}</h6>
             <h2 className="font-heading font-normal leading-[1.08] tracking-[-0.018em] mt-2.5 max-w-[22ch] text-[clamp(30px,2.9vw,44px)]">
               {t.testimonials.title}
             </h2>

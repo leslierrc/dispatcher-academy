@@ -23,7 +23,7 @@ export default function StatsSection() {
           transition={{ duration: 0.7, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
           className="px-7 border-l border-divider first:border-l-0 sm:first:border-l"
         >
-          <div className="font-heading text-[56px] leading-none font-normal tabular-nums text-accent-700">
+          <div className="font-heading text-[56px] leading-none font-normal tabular-nums text-accent-300">
             {isInView ? (
               <CountUp end={s.count} duration={1.5} suffix={s.suffix} />
             ) : (

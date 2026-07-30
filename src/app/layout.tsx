@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Lora } from "next/font/google";
+import { Cormorant_Garamond, Lora, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import CanvasMesh from "@/components/effects/CanvasMesh";
+import LoadingScreen from "@/components/effects/LoadingScreen";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-cormorant",
-  weight: ["400", "600"],
+  weight: ["300", "400", "600"],
   display: "swap",
 });
 
@@ -15,13 +17,25 @@ const lora = Lora({
   display: "swap",
 });
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: {
     default: "7 Digital LLC — Certificación en Despacho de Fletes",
     template: "%s | 7 Digital LLC",
   },
   description:
-    "7 Digital LLC te forma paso a paso para conseguir tu primer contrato en la industria del transporte de EE. UU. — con mentoría 1:1 de Carla.",
+    "Formamos personas sin experiencia previa para que entren a la industria del transporte con un oficio real, ingresos propios y la libertad de trabajar desde donde quieran.",
   keywords: [
     "dispatcher de fletes",
     "freight dispatcher",
@@ -41,7 +55,7 @@ export const metadata: Metadata = {
     siteName: "7 Digital LLC",
     title: "7 Digital LLC — Certificación en Despacho de Fletes",
     description:
-      "Conviértete en Dispatcher de Fletes y trabaja remoto. Mentoría 1:1 con Carla.",
+      "La plataforma para aprender el oficio que transforma tu vida. Mentoría 1:1 con Carla.",
     images: [
       {
         url: "/og-image.png",
@@ -54,7 +68,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "7 Digital LLC — Certificación en Despacho de Fletes",
-    description: "Conviértete en Dispatcher de Fletes y trabaja remoto.",
+    description: "La plataforma para aprender el oficio que transforma tu vida.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -73,7 +87,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#b68235",
+  themeColor: "#8a5f67",
 };
 
 export default function RootLayout({
@@ -86,7 +100,7 @@ export default function RootLayout({
     "@type": "EducationalOrganization",
     name: "7 Digital LLC",
     description:
-      "Certificación en despacho de fletes con mentoría 1:1 de Carla.",
+      "Formamos personas sin experiencia previa para que entren a la industria del transporte con un oficio real, ingresos propios y la libertad de trabajar desde donde quieran.",
     url: "https://carlaacademy.com",
     logo: "https://carlaacademy.com/logo.png",
     sameAs: [],
@@ -120,20 +134,23 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="es" className={`${cormorant.variable} ${lora.variable}`}>
+    <html lang="es" className={`${cormorant.variable} ${lora.variable} ${inter.variable} ${jetbrains.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="7 Digital LLC" />
-        <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+        <meta name="apple-mobile-web-app-title" content="7 Digital" />
+        <link rel="apple-touch-icon" href="/icons/icon.svg" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body className="font-body antialiased bg-bg text-text">
+        <CanvasMesh />
         <div className="noise-overlay" />
+        <LoadingScreen />
         {children}
       </body>
     </html>

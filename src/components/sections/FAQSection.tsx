@@ -16,7 +16,7 @@ export default function FAQSection() {
         style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(360px, 100%), 1fr))" }}
       >
         <div className="md:sticky md:top-[150px]">
-          <h6 className="text-accent-700">FAQ</h6>
+          <h6 className="text-accent-300">FAQ</h6>
           <h2 className="font-heading font-normal leading-[1.08] tracking-[-0.018em] mt-2.5 max-w-[14ch] text-[clamp(30px,2.9vw,44px)]">
             {t.faq.title}
           </h2>
