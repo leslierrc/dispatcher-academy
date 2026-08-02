@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Check, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 import { useInView } from "@/hooks/use-animations";
 import { getPricingCourses } from "@/actions/public";
-import CheckoutButton from "@/components/checkout/checkout-button";
 import type { Course } from "@/lib/types";
 
 export default function PricingSection() {
@@ -36,11 +36,11 @@ export default function PricingSection() {
           </motion.div>
 
           {courses === null && (
-            <div className="text-center text-sm opacity-50">Cargando planes…</div>
+            <div className="text-center text-sm opacity-50">{t.pricing.loading}</div>
           )}
 
           {courses?.length === 0 && (
-            <div className="text-center text-sm opacity-50">Todavía no hay cursos publicados.</div>
+            <div className="text-center text-sm opacity-50">{t.pricing.noCourses}</div>
           )}
 
           {courses?.map((course) => (
@@ -76,12 +76,8 @@ export default function PricingSection() {
                         </div>
                       )}
                       <div className="font-heading font-semibold text-[22px] text-neutral-100">{plan.name}</div>
-                      <div className="text-[13px] opacity-55 mt-1.5 mb-6.5 text-neutral-300">{plan.description}</div>
-                      <div className="flex items-baseline gap-2 pb-6.5 border-b border-white/16">
-                        <div className="font-heading text-[52px] leading-none tabular-nums text-neutral-100">
-                          ${Number(plan.price).toLocaleString("en-US")}
-                        </div>
-                        <div className="text-[12.5px] opacity-50 text-neutral-300">{t.pricing.oneTime}</div>
+                      <div className="text-[13px] opacity-55 mt-1.5 pb-6.5 border-b border-white/16 text-neutral-300">
+                        {plan.description}
                       </div>
                       <div className="flex flex-col gap-3.5 my-6.5">
                         {(plan.features ?? []).map((f) => (
@@ -93,16 +89,16 @@ export default function PricingSection() {
                           </div>
                         ))}
                       </div>
-                      <CheckoutButton
-                        planId={plan.id}
-                        className="flex justify-center items-center w-full rounded-md px-4 py-3.5 text-sm font-heading font-semibold transition-transform hover:scale-[1.02] cursor-pointer disabled:opacity-60"
+                      <Link
+                        href="/login"
+                        className="flex justify-center items-center w-full rounded-md px-4 py-3.5 text-sm font-heading font-semibold transition-transform hover:scale-[1.02] cursor-pointer"
                         style={{
                           border: `1px solid ${featured ? "var(--color-accent)" : "rgba(248,244,244,0.34)"}`,
                           color: featured ? "var(--color-accent-300)" : "var(--color-neutral-200)",
                         }}
                       >
-                        Empezar
-                      </CheckoutButton>
+                        {t.pricing.cta}
+                      </Link>
                     </motion.div>
                   );
                 })}

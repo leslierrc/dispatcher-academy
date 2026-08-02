@@ -7,6 +7,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 import { appTranslations } from "@/i18n/app";
 import type { Locale } from "@/i18n/translations";
 import { LOCALE_COOKIE } from "@/lib/locale-cookie";
@@ -38,11 +39,17 @@ export function AppI18nProvider({
   initialLocale: Locale;
 }) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
+  const router = useRouter();
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
     persistLocale(next);
-  }, []);
+    // El contenido de las páginas del panel es Server Component (usa
+    // getT() leyendo la cookie): sin este refresh, solo lo que vive en
+    // este contexto de React (topbar, sidebar) cambiaría al instante,
+    // y el resto quedaría en el idioma viejo hasta la próxima navegación.
+    router.refresh();
+  }, [router]);
 
   const t = appTranslations[locale];
 

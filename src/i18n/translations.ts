@@ -175,6 +175,9 @@ export const translations = {
       subtitle: "One-time payment. No hidden monthly fees.",
       oneTime: "one-time",
       guarantee: "14-day guarantee — if it’s not for you, we refund your money.",
+      cta: "Get started",
+      loading: "Loading plans…",
+      noCourses: "No courses published yet.",
     },
     testimonials: {
       kicker: "Stories",
@@ -352,6 +355,9 @@ export const translations = {
       subtitle: "Pago único. Sin mensualidades escondidas.",
       oneTime: "pago único",
       guarantee: "Garantía de 14 días — si no es para ti, te devolvemos tu dinero.",
+      cta: "Comenzar",
+      loading: "Cargando planes…",
+      noCourses: "Todavía no hay cursos publicados.",
     },
     testimonials: {
       kicker: "Historias",

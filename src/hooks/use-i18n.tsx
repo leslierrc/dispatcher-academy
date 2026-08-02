@@ -7,6 +7,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 import { translations, type Locale } from "@/i18n/translations";
 import { LOCALE_COOKIE } from "@/lib/locale-cookie";
 
@@ -35,11 +36,13 @@ export function I18nProvider({
   initialLocale?: Locale;
 }) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale ?? "es");
+  const router = useRouter();
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
     persistLocale(next);
-  }, []);
+    router.refresh();
+  }, [router]);
 
   const toggleLocale = useCallback(() => {
     setLocaleState((prev) => {
@@ -47,7 +50,8 @@ export function I18nProvider({
       persistLocale(next);
       return next;
     });
-  }, []);
+    router.refresh();
+  }, [router]);
 
   const t = translations[locale];
 
