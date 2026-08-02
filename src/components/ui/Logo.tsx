@@ -28,7 +28,7 @@ interface LogoProps {
 export default function Logo({ variant = "default", className, height = 28 }: LogoProps) {
   const c = PALETTE[variant];
   const scale = height / 28;
-  const width = Math.round(340 * scale / 70 * height);
+  const width = Math.round(height * (340 / 70));
 
   return (
     <svg

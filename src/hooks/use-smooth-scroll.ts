@@ -12,7 +12,7 @@ export function useSmoothScroll() {
     const initLenis = async () => {
       try {
         // lenis may not have types in this project; ignore TypeScript module-not-found for dynamic import
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { default: Lenis } = (await import("lenis")) as any;
         const lenis = new Lenis({
           duration: 1.8,

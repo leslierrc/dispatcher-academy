@@ -65,6 +65,13 @@ export default function Navbar() {
           </button>
         </div>
 
+        <a
+          href="/login"
+          className="font-heading font-semibold text-sm text-text/80 hover:text-accent transition-colors"
+        >
+          {t.nav.login}
+        </a>
+
         <motion.a
           href="#precios"
           whileHover={{ scale: 1.03 }}
@@ -119,6 +126,13 @@ export default function Navbar() {
                   EN
                 </button>
               </div>
+              <a
+                href="/login"
+                onClick={() => setMobileOpen(false)}
+                className="py-3 text-text/85 hover:text-accent transition-colors"
+              >
+                {t.nav.login}
+              </a>
               <a
                 href="#precios"
                 onClick={() => setMobileOpen(false)}

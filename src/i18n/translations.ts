@@ -70,6 +70,7 @@ export const translations = {
       stories: "Stories",
       faq: "FAQ",
       cta: "Enroll",
+      login: "Log in",
     },
     hero: {
       kicker: "Freight dispatch certification",
@@ -117,7 +118,7 @@ export const translations = {
       kicker: "About Carla",
       title: "Learn the trade from someone who lives it daily",
       body1:
-        "With years dispatching freight in the U.S., Carla founded this academy to teach the real trade: load negotiation, brokers, paperwork and cash flow — not textbook theory.",
+        "With years dispatching freight in the U.S., Carla founded this program to teach the real trade: load negotiation, brokers, paperwork and cash flow — not textbook theory.",
       body2:
         "Every module comes from real dispatch cases, and every student gets close follow-up until they land their first contract.",
       creds: [
@@ -173,50 +174,7 @@ export const translations = {
       title: "Choose your plan",
       subtitle: "One-time payment. No hidden monthly fees.",
       oneTime: "one-time",
-      featuredBadge: "Most popular",
       guarantee: "14-day guarantee — if it’s not for you, we refund your money.",
-      tiers: [
-        {
-          key: "basico",
-          name: "Basic",
-          tagline: "To start on your own",
-          price: "$297",
-          features: [
-            "Full recorded course (12 modules)",
-            "Downloadable templates",
-            "7 Digital LLC certificate",
-            "Community access",
-          ],
-          cta: "Choose Basic",
-        },
-        {
-          key: "pro",
-          name: "Pro",
-          tagline: "Most chosen by our students",
-          price: "$597",
-          features: [
-            "Everything in Basic",
-            "Monthly live group mentorship",
-            "Proven negotiation scripts",
-            "Job board access",
-            "Assignment review by Carla",
-          ],
-          cta: "Choose Pro",
-        },
-        {
-          key: "premium",
-          name: "Premium",
-          tagline: "Close guidance with Carla",
-          price: "$1,297",
-          features: [
-            "Everything in Pro",
-            "4 1:1 mentorship sessions with Carla",
-            "Review of your first real contract",
-            "Lifetime access to updates",
-          ],
-          cta: "Choose Premium",
-        },
-      ],
     },
     testimonials: {
       kicker: "Stories",
@@ -289,6 +247,7 @@ export const translations = {
       stories: "Historias",
       faq: "FAQ",
       cta: "Inscríbete",
+      login: "Iniciar sesión",
     },
     hero: {
       kicker: "Certificación en despacho de fletes",
@@ -392,50 +351,7 @@ export const translations = {
       title: "Elige tu plan",
       subtitle: "Pago único. Sin mensualidades escondidas.",
       oneTime: "pago único",
-      featuredBadge: "Más elegido",
       guarantee: "Garantía de 14 días — si no es para ti, te devolvemos tu dinero.",
-      tiers: [
-        {
-          key: "basico",
-          name: "Básico",
-          tagline: "Para empezar por tu cuenta",
-          price: "$297",
-          features: [
-            "Curso grabado completo (12 módulos)",
-            "Plantillas descargables",
-            "Certificado 7 Digital LLC",
-            "Acceso a la comunidad",
-          ],
-          cta: "Elegir Básico",
-        },
-        {
-          key: "pro",
-          name: "Pro",
-          tagline: "El más elegido por nuestros alumnos",
-          price: "$597",
-          features: [
-            "Todo lo del plan Básico",
-            "Mentoría grupal mensual en vivo",
-            "Guiones de negociación probados",
-            "Acceso a bolsa de trabajo",
-            "Revisión de tareas por Carla",
-          ],
-          cta: "Elegir Pro",
-        },
-        {
-          key: "premium",
-          name: "Premium",
-          tagline: "Acompañamiento cercano con Carla",
-          price: "$1,297",
-          features: [
-            "Todo lo del plan Pro",
-            "4 sesiones de mentoría 1:1 con Carla",
-            "Revisión de tu primer contrato real",
-            "Acceso de por vida a actualizaciones",
-          ],
-          cta: "Elegir Premium",
-        },
-      ],
     },
     testimonials: {
       kicker: "Historias",
