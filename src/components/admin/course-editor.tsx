@@ -150,7 +150,9 @@ export default function CourseEditor({
       fd.set("url", result.path);
       fd.set("type", file.type || ext);
       await addLessonFile(fd);
+      return true;
     }
+    return false;
   };
 
   const handleVideo = async (file: File, lessonId: string) => {
@@ -159,7 +161,9 @@ export default function CourseEditor({
     const result = await runUpload(file, path);
     if (result.path) {
       await setLessonVideo(lessonId, result.path);
+      return true;
     }
+    return false;
   };
 
   // Un módulo "Contenido" se crea solo al crear el curso; esto es un
@@ -195,11 +199,12 @@ export default function CourseEditor({
       const lessonId = "lessonId" in created ? created.lessonId : null;
 
       if (lessonId) {
-        if (file.type.startsWith("video/")) {
-          await handleVideo(file, lessonId);
-        } else {
-          await handleFile(file, lessonId, title);
-        }
+        const ok = file.type.startsWith("video/")
+          ? await handleVideo(file, lessonId)
+          : await handleFile(file, lessonId, title);
+        // Subida cancelada o fallida: no dejar un contenido vacío
+        // ("Sin archivo") creado a mitad de camino.
+        if (!ok) await deleteLesson(lessonId);
       }
     }
   };

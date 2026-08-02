@@ -31,6 +31,7 @@ export async function checkout(planId: string) {
   const session = await createCheckoutSession({
     customerEmail: user.email!,
     priceId,
+    interval: plan.interval,
     successUrl: `${appUrl}/dashboard?checkout=success&course=${plan.course.slug}`,
     cancelUrl: `${appUrl}/pricing`,
     metadata: {

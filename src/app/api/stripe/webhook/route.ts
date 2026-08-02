@@ -6,6 +6,13 @@ import { sendPurchaseSuccessEmail, sendPurchaseFailedEmail } from "@/services/em
 
 export const dynamic = "force-dynamic";
 
+// Desde Stripe API 2025+, current_period_end vive en cada subscription
+// item, no en el nivel superior de la suscripción.
+function periodEndOf(subscription: Stripe.Subscription): string | null {
+  const seconds = subscription.items.data[0]?.current_period_end;
+  return seconds ? new Date(seconds * 1000).toISOString() : null;
+}
+
 export async function POST(request: NextRequest) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
@@ -51,18 +58,26 @@ export async function POST(request: NextRequest) {
       const email = session.customer_details?.email ?? session.customer_email;
 
       if (user_id && plan_id && course_id && tier) {
-        // Inserta o actualiza la suscripción
-        await supabase.from("subscriptions").upsert(
-          {
-            user_id,
-            plan_id,
-            stripe_customer_id: typeof session.customer === "string" ? session.customer : null,
-            stripe_subscription_id: typeof session.subscription === "string" ? session.subscription : null,
-            status: "active",
-            current_period_end: null,
-          },
-          { onConflict: "user_id" },
-        );
+        let currentPeriodEnd: string | null = null;
+        if (typeof session.subscription === "string") {
+          const subscription = await getStripe().subscriptions.retrieve(session.subscription);
+          currentPeriodEnd = periodEndOf(subscription);
+        }
+
+        // Una fila nueva por compra: un alumno puede tener varias
+        // suscripciones activas a la vez (una por curso). No hay
+        // conflicto posible en un insert — cada checkout crea una
+        // suscripción de Stripe con id nuevo (stripe_subscription_id
+        // ya es unique), y la deduplicación de webhooks repetidos ya
+        // se resolvió arriba con stripe_events.
+        await supabase.from("subscriptions").insert({
+          user_id,
+          plan_id,
+          stripe_customer_id: typeof session.customer === "string" ? session.customer : null,
+          stripe_subscription_id: typeof session.subscription === "string" ? session.subscription : null,
+          status: "active",
+          current_period_end: currentPeriodEnd,
+        });
 
         // Inscribe al alumno SOLO en el curso comprado, con el nivel
         // que pagó (básico/medio/pro). Si ya estaba inscrito con un
@@ -104,20 +119,35 @@ export async function POST(request: NextRequest) {
       break;
     }
 
-    case "invoice.payment_failed": {
+    case "invoice.payment_succeeded": {
+      // Renovación mensual exitosa: extiende el acceso y, si venía de
+      // un cobro fallido, reactiva la suscripción. Desde la API 2025+
+      // la suscripción de la factura vive en parent.subscription_details.
       const invoice = event.data.object as Stripe.Invoice;
-      if (typeof invoice.customer === "string") {
-        const { data: sub } = await supabase
+      const subscriptionRef = invoice.parent?.subscription_details?.subscription;
+      const subscriptionId = typeof subscriptionRef === "string" ? subscriptionRef : subscriptionRef?.id;
+      if (subscriptionId) {
+        const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
+        await supabase
           .from("subscriptions")
-          .select("user_id")
-          .eq("stripe_customer_id", invoice.customer)
-          .maybeSingle();
-        if (sub) {
-          await supabase
-            .from("subscriptions")
-            .update({ status: "past_due" })
-            .eq("stripe_customer_id", invoice.customer);
-        }
+          .update({ status: "active", current_period_end: periodEndOf(subscription) })
+          .eq("stripe_subscription_id", subscriptionId);
+      }
+      break;
+    }
+
+    case "invoice.payment_failed": {
+      // Solo marca "past_due" la suscripción puntual cuya factura
+      // falló — un alumno puede tener otros cursos pagando bien bajo
+      // el mismo customer de Stripe, y no deben verse afectados.
+      const invoice = event.data.object as Stripe.Invoice;
+      const subscriptionRef = invoice.parent?.subscription_details?.subscription;
+      const subscriptionId = typeof subscriptionRef === "string" ? subscriptionRef : subscriptionRef?.id;
+      if (subscriptionId) {
+        await supabase
+          .from("subscriptions")
+          .update({ status: "past_due" })
+          .eq("stripe_subscription_id", subscriptionId);
       }
       break;
     }

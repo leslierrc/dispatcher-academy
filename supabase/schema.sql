@@ -237,7 +237,7 @@ create table if not exists public.plans (
   description      text,
   price            numeric(10,2) not null default 0,
   currency         text not null default 'usd',
-  interval         text not null default 'one_time' check (interval in ('one_time','month','year')),
+  interval         text not null default 'month' check (interval in ('one_time','month','year')),
   stripe_price_id  text,
   features         jsonb not null default '[]'::jsonb,
   badge            text,
@@ -368,6 +368,8 @@ create policy "progress own upsert" on public.progress
 -- Planes son públicos
 create policy "plans public read" on public.plans
   for select to authenticated, anon using (true);
+create policy "plans admin all" on public.plans
+  for all using (public.is_admin_user()) with check (public.is_admin_user());
 
 -- Cursos publicados son públicos; el resto solo admin
 create policy "courses public read" on public.courses

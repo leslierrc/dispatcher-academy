@@ -20,23 +20,30 @@ export const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_K
 export async function createCheckoutSession({
   customerEmail,
   priceId,
+  interval,
   successUrl,
   cancelUrl,
   metadata,
 }: {
   customerEmail: string;
   priceId: string;
+  interval: "one_time" | "month" | "year";
   successUrl: string;
   cancelUrl: string;
   metadata: Record<string, string>;
 }) {
+  // Los planes son mensuales (interval "month"): Stripe exige
+  // mode "subscription" para un precio recurrente, "payment" solo
+  // sirve para precios de una sola vez ("one_time").
+  const mode = interval === "one_time" ? "payment" : "subscription";
   return getStripe().checkout.sessions.create({
-    mode: "payment",
+    mode,
     customer_email: customerEmail,
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: successUrl,
     cancel_url: cancelUrl,
     metadata,
+    subscription_data: mode === "subscription" ? { metadata } : undefined,
     allow_promotion_codes: true,
   });
 }

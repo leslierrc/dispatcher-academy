@@ -68,9 +68,6 @@ export default function CoursesManager({ courses }: { courses: Course[] }) {
               <p className="mt-1 line-clamp-1 text-sm text-neutral-400">
                 {course.description || t.admin.courses.noDescription}
               </p>
-              <div className="mt-1 text-xs text-neutral-500">
-                {course.price ? `$${course.price}` : t.admin.courses.free}
-              </div>
             </div>
 
             <div className="flex items-center gap-2">

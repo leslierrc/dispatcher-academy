@@ -19,7 +19,7 @@ import { toggleLessonComplete, saveLessonPosition } from "@/actions/courses";
 import { getLessonFileViewUrl } from "@/actions/content";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAppI18n } from "@/hooks/use-app-i18n";
 import type { Lesson, LessonFile } from "@/lib/types";
 
@@ -274,9 +274,6 @@ export default function LessonPlayer({
           ) : (
             <p className="mt-3 text-sm text-neutral-500">{t.lesson.noFiles}</p>
           )}
-          <p className="mt-4 text-[11px] leading-relaxed text-neutral-500">
-            {canDownload ? t.lesson.viewOrDownload : t.lesson.viewOnly}
-          </p>
         </div>
       </aside>
 
@@ -284,7 +281,6 @@ export default function LessonPlayer({
         <DialogContent className="max-w-4xl w-[calc(100vw-2rem)] h-[85vh] flex flex-col p-4">
           <DialogHeader className="mb-2">
             <DialogTitle className="truncate pr-8">{viewer.name}</DialogTitle>
-            <DialogDescription>{t.lesson.protectedView}</DialogDescription>
           </DialogHeader>
           <div className="relative flex-1 overflow-hidden rounded-md border border-divider bg-white" onContextMenu={blockContextMenu}>
             {viewer.loading && (

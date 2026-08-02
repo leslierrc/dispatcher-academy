@@ -65,15 +65,9 @@ export default function CourseFormDialog({
             <Label htmlFor="description">{t.admin.courseForm.description}</Label>
             <Textarea id="description" name="description" defaultValue={course?.description ?? ""} placeholder={t.admin.courseForm.descriptionPlaceholder} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="price">{t.admin.courseForm.price}</Label>
-              <Input id="price" name="price" type="number" min={0} step="0.01" defaultValue={course?.price ?? 0} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="category_id">{t.admin.courseForm.categoryId}</Label>
-              <Input id="category_id" name="category_id" defaultValue={course?.category_id ?? ""} placeholder={t.admin.courseForm.categoryIdPlaceholder} />
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="category_id">{t.admin.courseForm.categoryId}</Label>
+            <Input id="category_id" name="category_id" defaultValue={course?.category_id ?? ""} placeholder={t.admin.courseForm.categoryIdPlaceholder} />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="thumbnail_url">{t.admin.courseForm.thumbnailUrl}</Label>
