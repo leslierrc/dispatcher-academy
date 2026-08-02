@@ -159,7 +159,7 @@ export default function Hero() {
         <div className="absolute inset-0 grid-bg" />
 
         <motion.div
-          className="absolute bottom-24 right-8 z-20 flex items-center gap-3 bg-[#1a1817]/60 backdrop-blur-md border border-white/10 rounded-full px-5 py-2.5"
+          className="absolute bottom-24 right-8 z-20 hidden md:flex items-center gap-3 bg-[#1a1817]/60 backdrop-blur-md border border-white/10 rounded-full px-5 py-2.5"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
@@ -193,7 +193,7 @@ export default function Hero() {
                 delay: 0.15,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="inline-flex items-center gap-2.5 border border-accent/40 rounded-full px-4 py-1.5 text-[11px] tracking-[0.18em] uppercase text-accent-300 font-accent mb-8"
+              className="hidden md:inline-flex items-center gap-2.5 border border-accent/40 rounded-full px-4 py-1.5 text-[11px] tracking-[0.18em] uppercase text-accent-300 font-accent mb-8"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
               7 DIGITAL LLC &middot;{" "}
@@ -203,7 +203,7 @@ export default function Hero() {
             </motion.div>
 
             <h1 className="font-heading font-light leading-[0.92] tracking-[-0.03em] text-balance">
-              <span className="text-[clamp(52px,7.5vw,110px)] block text-white">
+              <span className="text-[clamp(34px,9vw,110px)] block text-white whitespace-nowrap">
                 {prefix.split("").map((ch, i) => (
                   <motion.span
                     key={i}
@@ -218,7 +218,7 @@ export default function Hero() {
                 ))}
               </span>
 
-              <span className="text-[clamp(52px,7.5vw,110px)] block mt-1">
+              <span className="text-[clamp(24px,4vw,60px)] block mt-1 whitespace-nowrap">
                 {preposition.split("").map((ch, i) => (
                   <motion.span
                     key={i}
@@ -227,14 +227,13 @@ export default function Hero() {
                     animate="animate"
                     custom={i}
                     className="inline-block text-white/70 font-accent font-semibold tracking-[0.08em]"
-                    style={{ fontSize: "clamp(28px,4vw,60px)" }}
                   >
                     {ch === " " ? "\u00A0" : ch}
                   </motion.span>
                 ))}
               </span>
 
-              <span className="text-[clamp(64px,9vw,130px)] block mt-2 leading-[0.95]">
+              <span className="text-[clamp(40px,9vw,130px)] block mt-2 leading-[0.95] whitespace-nowrap">
                 <AnimatePresence mode="popLayout">
                   <motion.span
                     key={rotating.word}

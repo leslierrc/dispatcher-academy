@@ -217,6 +217,33 @@ function AdminShellInner({
                 </Link>
               ))}
             </nav>
+            <div className="px-3 py-4 border-t border-divider flex flex-col gap-1">
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-neutral-300"
+              >
+                <LayoutDashboard className="w-4.5 h-4.5" />
+                {t.shell.studentView}
+              </Link>
+              <Link
+                href="/"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-neutral-300"
+              >
+                <Home className="w-4.5 h-4.5" />
+                {t.shell.viewSite}
+              </Link>
+              <form action={logout}>
+                <button
+                  type="submit"
+                  className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-neutral-300 hover:bg-red-500/10 hover:text-red-300 transition-colors cursor-pointer w-full"
+                >
+                  <LogOut className="w-4.5 h-4.5" />
+                  {t.shell.logout}
+                </button>
+              </form>
+            </div>
           </aside>
         </div>
       )}

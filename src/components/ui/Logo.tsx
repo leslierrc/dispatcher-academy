@@ -27,7 +27,6 @@ interface LogoProps {
 
 export default function Logo({ variant = "default", className, height = 28 }: LogoProps) {
   const c = PALETTE[variant];
-  const scale = height / 28;
   const width = Math.round(height * (340 / 70));
 
   return (
@@ -42,7 +41,12 @@ export default function Logo({ variant = "default", className, height = 28 }: Lo
       className={className}
     >
       <title>7 Digital</title>
-      <g transform={`translate(4 5) scale(${0.6 * scale})`}>
+      {/* El viewBox es fijo (0 0 340 70): el tamaño final ya lo define
+          width/height más arriba, que el navegador escala solo. Un
+          factor de escala extra acá (atado a `height`) hacía crecer el
+          círculo más rápido que el viewBox y lo recortaba abajo en los
+          tamaños grandes (34px+, los que usa el panel). */}
+      <g transform="translate(4 5) scale(0.6)">
         <circle cx="50" cy="50" r="47" stroke={c.circle} strokeWidth="1.5" />
         <g stroke={c.stroke} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
           <path d="M32 40H62" />
@@ -54,7 +58,7 @@ export default function Logo({ variant = "default", className, height = 28 }: Lo
       <text
         x={102} y={43}
         fontFamily="'Cormorant Garamond', Garamond, serif"
-        fontSize={28 * scale}
+        fontSize={28}
         fontWeight="300"
         letterSpacing="6.7"
         fill={c.word}
@@ -69,7 +73,7 @@ export function LogoMark({ className, height = 60 }: { className?: string; heigh
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 100 100"
+      viewBox="-3 -3 106 106"
       width={height}
       height={height}
       fill="none"
