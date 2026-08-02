@@ -16,21 +16,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { TIER_LABELS } from "@/lib/constants";
+import { useAppI18n } from "@/hooks/use-app-i18n";
 import type { Course, Plan } from "@/lib/types";
+import type { AppT } from "@/i18n/app";
 
 const initialState: ActionState = {};
 
 export default function CoursePricing({ course, plans }: { course: Course; plans: Plan[] }) {
+  const { t } = useAppI18n();
   const [editing, setEditing] = useState<Plan | null>(null);
 
   return (
     <section className="flex flex-col gap-4">
       <div>
-        <h2 className="font-heading text-xl text-text">Precios de «{course.title}»</h2>
-        <p className="mt-1 text-sm text-neutral-400">
-          Básico lee documentos y escucha audio. Medio suma los videos. Pro suma mentoría 1:1 y descarga de
-          documentos y audios (el video nunca se puede descargar).
-        </p>
+        <h2 className="font-heading text-xl text-text">{t.admin.pricing.title(course.title)}</h2>
+        <p className="mt-1 text-sm text-neutral-400">{t.admin.pricing.description}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -47,7 +47,7 @@ export default function CoursePricing({ course, plans }: { course: Course; plans
             </div>
             <div className="font-heading text-3xl text-text">
               ${Number(plan.price).toLocaleString("en-US")}
-              <span className="ml-1 text-sm font-body text-neutral-400">pago único</span>
+              <span className="ml-1 text-sm font-body text-neutral-400">{t.admin.pricing.oneTime}</span>
             </div>
             <div className="text-sm text-neutral-400">{plan.description}</div>
             <ul className="mt-1 flex flex-col gap-1.5">
@@ -60,7 +60,7 @@ export default function CoursePricing({ course, plans }: { course: Course; plans
             </ul>
             <div className="mt-auto pt-2">
               <Badge variant={plan.active ? "success" : "neutral"}>
-                {plan.active ? "Visible en /pricing" : "Oculto"}
+                {plan.active ? t.admin.pricing.visibleInPricing : t.admin.pricing.hidden}
               </Badge>
             </div>
           </div>
@@ -70,17 +70,17 @@ export default function CoursePricing({ course, plans }: { course: Course; plans
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar nivel {editing?.tier ? TIER_LABELS[editing.tier] : ""}</DialogTitle>
-            <DialogDescription>Precio y beneficios que ve el alumno en /pricing.</DialogDescription>
+            <DialogTitle>{t.admin.pricing.editTier(editing?.tier ? TIER_LABELS[editing.tier] : "")}</DialogTitle>
+            <DialogDescription>{t.admin.pricing.editSubtitle}</DialogDescription>
           </DialogHeader>
-          {editing && <PlanForm plan={editing} onDone={() => setEditing(null)} />}
+          {editing && <PlanForm plan={editing} onDone={() => setEditing(null)} t={t} />}
         </DialogContent>
       </Dialog>
     </section>
   );
 }
 
-function PlanForm({ plan, onDone }: { plan: Plan; onDone: () => void }) {
+function PlanForm({ plan, onDone, t }: { plan: Plan; onDone: () => void; t: AppT }) {
   const [state, action, pending] = useActionState(
     (prev: ActionState, fd: FormData) => savePlan(plan.id, prev, fd),
     initialState,
@@ -103,33 +103,33 @@ function PlanForm({ plan, onDone }: { plan: Plan; onDone: () => void }) {
       )}
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="p-name">Nombre visible</Label>
+          <Label htmlFor="p-name">{t.admin.pricing.visibleName}</Label>
           <Input id="p-name" name="name" defaultValue={plan.name} required />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="p-price">Precio (USD)</Label>
+          <Label htmlFor="p-price">{t.admin.pricing.price}</Label>
           <Input id="p-price" name="price" type="number" min={0} step="0.01" defaultValue={plan.price} required />
         </div>
       </div>
       <input type="hidden" name="interval" value={plan.interval} />
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="p-badge">Badge (opcional)</Label>
-        <Input id="p-badge" name="badge" defaultValue={plan.badge ?? ""} placeholder="Recomendado" />
+        <Label htmlFor="p-badge">{t.admin.pricing.badge}</Label>
+        <Input id="p-badge" name="badge" defaultValue={plan.badge ?? ""} placeholder={t.admin.pricing.badgePlaceholder} />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="p-desc">Descripción</Label>
+        <Label htmlFor="p-desc">{t.admin.pricing.description2}</Label>
         <Input id="p-desc" name="description" defaultValue={plan.description ?? ""} />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="p-features">Beneficios (uno por línea)</Label>
+        <Label htmlFor="p-features">{t.admin.pricing.features}</Label>
         <Textarea id="p-features" name="features" defaultValue={(plan.features ?? []).join("\n")} rows={4} />
       </div>
       <label className="flex items-center gap-2.5 rounded-md border border-divider bg-surface px-3.5 py-3 text-sm text-text cursor-pointer">
         <input type="checkbox" name="active" value="true" defaultChecked={plan.active} className="accent-accent" />
-        Visible en /pricing
+        {t.admin.pricing.visibleInPricing}
       </label>
       <Button type="submit" disabled={pending}>
-        {pending ? "Guardando…" : "Guardar cambios"}
+        {pending ? t.admin.pricing.saving : t.admin.pricing.saveChanges}
       </Button>
     </form>
   );

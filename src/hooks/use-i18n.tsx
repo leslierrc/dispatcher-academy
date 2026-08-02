@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { translations, type Locale } from "@/i18n/translations";
+import { LOCALE_COOKIE } from "@/lib/locale-cookie";
 
 type TranslationKeys = (typeof translations)["en" | "es"];
 
@@ -20,11 +21,32 @@ interface I18nContextType {
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
-export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>("es");
+function persistLocale(next: Locale) {
+  // Un año, misma cookie que lee el servidor (src/lib/locale.ts) para
+  // que el panel (Server Components) sepa qué idioma mostrar.
+  document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; SameSite=Lax`;
+}
+
+export function I18nProvider({
+  children,
+  initialLocale,
+}: {
+  children: ReactNode;
+  initialLocale?: Locale;
+}) {
+  const [locale, setLocaleState] = useState<Locale>(initialLocale ?? "es");
+
+  const setLocale = useCallback((next: Locale) => {
+    setLocaleState(next);
+    persistLocale(next);
+  }, []);
 
   const toggleLocale = useCallback(() => {
-    setLocale((prev) => (prev === "en" ? "es" : "en"));
+    setLocaleState((prev) => {
+      const next = prev === "en" ? "es" : "en";
+      persistLocale(next);
+      return next;
+    });
   }, []);
 
   const t = translations[locale];

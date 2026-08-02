@@ -4,9 +4,11 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth-helpers";
 import { createClient } from "@/lib/supabase/server";
 import { createCheckoutSession, getStripePriceId } from "@/lib/stripe";
+import { getAppUrl } from "@/lib/constants";
+import { getT } from "@/lib/locale";
 
 export async function checkout(planId: string) {
-  const user = await requireUser();
+  const [user, { t }] = await Promise.all([requireUser(), getT()]);
   const supabase = await createClient();
 
   const { data: plan } = await supabase
@@ -16,7 +18,7 @@ export async function checkout(planId: string) {
     .eq("active", true)
     .single();
 
-  if (!plan || !plan.course_id || !plan.tier) return { error: "Plan no encontrado" };
+  if (!plan || !plan.course_id || !plan.tier) return { error: t.actions.checkout.planNotFound };
 
   let priceId = plan.stripe_price_id;
   if (!priceId) {
@@ -25,7 +27,7 @@ export async function checkout(planId: string) {
     await supabase.from("plans").update({ stripe_price_id: priceId }).eq("id", plan.id);
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl = getAppUrl();
   const session = await createCheckoutSession({
     customerEmail: user.email!,
     priceId,

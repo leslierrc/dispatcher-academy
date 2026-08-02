@@ -1,10 +1,13 @@
 import { requireAdmin } from "@/lib/auth-helpers";
-import { getAdminSubscriptions } from "@/lib/data";
+import { getAdminEnrollments, getAdminSubscriptions } from "@/lib/data";
 import SubscriptionsManager from "@/components/admin/subscriptions-manager";
 
 export default async function AdminSubscriptionsPage() {
   await requireAdmin();
-  const subscriptions = await getAdminSubscriptions();
+  const [enrollments, subscriptions] = await Promise.all([
+    getAdminEnrollments(),
+    getAdminSubscriptions(),
+  ]);
 
-  return <SubscriptionsManager subscriptions={subscriptions} />;
+  return <SubscriptionsManager enrollments={enrollments} subscriptions={subscriptions} />;
 }

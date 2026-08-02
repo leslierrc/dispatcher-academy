@@ -4,16 +4,20 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth-helpers";
+import { getT } from "@/lib/locale";
+import type { AppT } from "@/i18n/app";
 
 export type ActionState = { error?: string; success?: string };
 
-const profileSchema = z.object({
-  name: z.string().min(2, "Nombre inválido").optional(),
-  phone: z.string().optional(),
-});
+function profileSchema(t: AppT) {
+  return z.object({
+    name: z.string().min(2, t.actions.courses.invalidName).optional(),
+    phone: z.string().optional(),
+  });
+}
 
 export async function toggleLessonComplete(lessonId: string, completed: boolean): Promise<ActionState> {
-  const user = await requireUser();
+  const [user, { t }] = await Promise.all([requireUser(), getT()]);
   const supabase = await createClient();
 
   const { error } = await supabase.from("progress").upsert(
@@ -28,7 +32,7 @@ export async function toggleLessonComplete(lessonId: string, completed: boolean)
 
   if (error) return { error: error.message };
   revalidatePath("/lessons", "layout");
-  return { success: completed ? "Lección completada" : "Lección marcada como pendiente" };
+  return { success: completed ? t.actions.courses.lessonCompleted : t.actions.courses.lessonMarkedPending };
 }
 
 export async function saveLessonPosition(lessonId: string, seconds: number) {
@@ -46,8 +50,8 @@ export async function saveLessonPosition(lessonId: string, seconds: number) {
 }
 
 export async function updateProfile(prev: ActionState, formData: FormData): Promise<ActionState> {
-  const user = await requireUser();
-  const parsed = profileSchema.safeParse({
+  const [user, { t }] = await Promise.all([requireUser(), getT()]);
+  const parsed = profileSchema(t).safeParse({
     name: formData.get("name") || undefined,
     phone: formData.get("phone") || undefined,
   });
@@ -72,5 +76,5 @@ export async function updateProfile(prev: ActionState, formData: FormData): Prom
   }
 
   revalidatePath("/profile");
-  return { success: "Perfil actualizado" };
+  return { success: t.actions.courses.profileUpdated };
 }

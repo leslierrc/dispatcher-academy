@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Lesson } from "@/lib/types";
+import type { AppT } from "@/i18n/app";
 
 const initialState: ActionState = {};
 
@@ -23,11 +24,13 @@ export default function LessonFormDialog({
   onOpenChange,
   moduleId,
   lesson,
+  t,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   moduleId: string;
   lesson: Lesson | null;
+  t: AppT;
 }) {
   const [state, action, pending] = useActionState(
     (prev: ActionState, fd: FormData) =>
@@ -39,10 +42,8 @@ export default function LessonFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{lesson ? "Editar lección" : "Nueva lección"}</DialogTitle>
-          <DialogDescription>
-            Configura el video, descripción, contenido y archivos de la lección.
-          </DialogDescription>
+          <DialogTitle>{lesson ? t.admin.lessonForm.editTitle : t.admin.lessonForm.newTitle}</DialogTitle>
+          <DialogDescription>{t.admin.lessonForm.subtitle}</DialogDescription>
         </DialogHeader>
 
         <form action={action} className="flex flex-col gap-4">
@@ -53,38 +54,35 @@ export default function LessonFormDialog({
           )}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="lesson-title">Título</Label>
+            <Label htmlFor="lesson-title">{t.admin.lessonForm.title}</Label>
             <Input id="lesson-title" name="title" defaultValue={lesson?.title ?? ""} required />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="lesson-desc">Descripción corta</Label>
+            <Label htmlFor="lesson-desc">{t.admin.lessonForm.shortDescription}</Label>
             <Textarea id="lesson-desc" name="description" defaultValue={lesson?.description ?? ""} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="lesson-video">Enlace de video externo (opcional)</Label>
+            <Label htmlFor="lesson-video">{t.admin.lessonForm.externalVideoLink}</Label>
             <Input
               id="lesson-video"
               name="video_url"
               defaultValue={lesson?.video_url && /^https?:\/\//i.test(lesson.video_url) ? lesson.video_url : ""}
-              placeholder="https://youtube.com/watch?v=..."
+              placeholder={t.admin.lessonForm.externalVideoPlaceholder}
             />
-            <p className="text-xs text-neutral-500">
-              Solo para YouTube/Vimeo. Para subir el archivo de video directamente, guarda la lección y usa
-              &quot;Subir video&quot; en la lista de módulos.
-            </p>
+            <p className="text-xs text-neutral-500">{t.admin.lessonForm.externalVideoHint}</p>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="lesson-content">Contenido / texto</Label>
+            <Label htmlFor="lesson-content">{t.admin.lessonForm.contentText}</Label>
             <Textarea
               id="lesson-content"
               name="content"
               defaultValue={lesson?.content ?? ""}
               rows={5}
-              placeholder="Puedes escribir el guion de la lección o contenido complementario."
+              placeholder={t.admin.lessonForm.contentPlaceholder}
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="lesson-duration">Duración (minutos)</Label>
+            <Label htmlFor="lesson-duration">{t.admin.lessonForm.durationMinutes}</Label>
             <Input
               id="lesson-duration"
               name="duration_minutes"
@@ -94,18 +92,18 @@ export default function LessonFormDialog({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="lesson-thumb">URL de miniatura</Label>
+            <Label htmlFor="lesson-thumb">{t.admin.lessonForm.thumbnailUrl}</Label>
             <Input id="lesson-thumb" name="thumbnail_url" defaultValue={lesson?.thumbnail_url ?? ""} />
           </div>
 
           <label className="flex items-center gap-2.5 rounded-md border border-divider bg-surface px-3.5 py-3 text-sm text-text cursor-pointer">
             <input type="checkbox" name="published" value="true" defaultChecked={lesson?.published ?? true} className="accent-accent" />
-            Publicada
+            {t.admin.lessonForm.published}
           </label>
 
           <Button type="submit" disabled={pending} className="mt-1">
             {pending && <Loader2 className="h-4 w-4 animate-spin" />}
-            {lesson ? "Guardar cambios" : "Crear lección"}
+            {lesson ? t.admin.lessonForm.saveChanges : t.admin.lessonForm.create}
           </Button>
         </form>
       </DialogContent>

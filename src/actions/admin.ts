@@ -6,7 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { TIER_DEFAULTS } from "@/lib/constants";
+import { getT } from "@/lib/locale";
 import type { Tier } from "@/lib/types";
+import type { AppT } from "@/i18n/app";
 
 export type ActionState = { error?: string; success?: string };
 
@@ -26,26 +28,29 @@ function uniqueSlug(base: string) {
 
 async function admin() {
   await requireAdmin();
-  return createClient();
+  const [supabase, { t }] = await Promise.all([createClient(), getT()]);
+  return { supabase, t };
+}
+
+function courseSchema(t: AppT) {
+  return z.object({
+    title: z.string().min(2, t.actions.admin.titleRequired),
+    slug: z.string().optional(),
+    description: z.string().optional(),
+    category_id: z.string().optional(),
+    thumbnail_url: z.string().optional(),
+    price: z.coerce.number().min(0).optional(),
+    published: z.coerce.boolean().optional(),
+    featured: z.coerce.boolean().optional(),
+    order_index: z.coerce.number().optional(),
+  });
 }
 
 // ── CURSOS ─────────────────────────────────────────────────
 
-const courseSchema = z.object({
-  title: z.string().min(2, "El título es obligatorio"),
-  slug: z.string().optional(),
-  description: z.string().optional(),
-  category_id: z.string().optional(),
-  thumbnail_url: z.string().optional(),
-  price: z.coerce.number().min(0).optional(),
-  published: z.coerce.boolean().optional(),
-  featured: z.coerce.boolean().optional(),
-  order_index: z.coerce.number().optional(),
-});
-
 export async function createCourse(prev: ActionState, formData: FormData): Promise<ActionState> {
-  const supabase = await admin();
-  const parsed = courseSchema.safeParse(Object.fromEntries(formData));
+  const { supabase, t } = await admin();
+  const parsed = courseSchema(t).safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
   const { data: course, error } = await supabase
@@ -84,12 +89,12 @@ export async function createCourse(prev: ActionState, formData: FormData): Promi
   );
 
   revalidatePath("/admin", "layout");
-  return { success: "Curso creado" };
+  return { success: t.actions.admin.courseCreated };
 }
 
 export async function updateCourse(courseId: string, prev: ActionState, formData: FormData): Promise<ActionState> {
-  const supabase = await admin();
-  const parsed = courseSchema.safeParse(Object.fromEntries(formData));
+  const { supabase, t } = await admin();
+  const parsed = courseSchema(t).safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
   const { error } = await supabase
@@ -108,29 +113,29 @@ export async function updateCourse(courseId: string, prev: ActionState, formData
 
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Curso actualizado" };
+  return { success: t.actions.admin.courseUpdated };
 }
 
 export async function toggleCourseStatus(courseId: string, published: boolean) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const { error } = await supabase.from("courses").update({ published }).eq("id", courseId);
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: published ? "Curso publicado" : "Curso ocultado" };
+  return { success: published ? t.actions.admin.coursePublished : t.actions.admin.courseHidden };
 }
 
 export async function deleteCourse(courseId: string) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const { error } = await supabase.from("courses").delete().eq("id", courseId);
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Curso eliminado" };
+  return { success: t.actions.admin.courseDeleted };
 }
 
 export async function duplicateCourse(courseId: string) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const { data: course } = await supabase.from("courses").select("*").eq("id", courseId).single();
-  if (!course) return { error: "Curso no encontrado" };
+  if (!course) return { error: t.actions.admin.courseNotFound };
 
   const { data: newCourse, error } = await supabase
     .from("courses")
@@ -198,16 +203,16 @@ export async function duplicateCourse(courseId: string) {
   }
 
   revalidatePath("/admin", "layout");
-  return { success: "Curso duplicado" };
+  return { success: t.actions.admin.courseDuplicated };
 }
 
 // ── MÓDULOS ────────────────────────────────────────────────
 
 export async function createModule(formData: FormData) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const title = String(formData.get("title") || "").trim();
   const courseId = String(formData.get("course_id") || "");
-  if (!title || !courseId) return { error: "Faltan datos" };
+  if (!title || !courseId) return { error: t.actions.admin.missingData };
 
   const { data: next } = await supabase
     .from("modules")
@@ -226,13 +231,13 @@ export async function createModule(formData: FormData) {
 
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Módulo creado" };
+  return { success: t.actions.admin.moduleCreated };
 }
 
 export async function updateModule(moduleId: string, formData: FormData) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const title = String(formData.get("title") || "").trim();
-  if (!title) return { error: "Faltan datos" };
+  if (!title) return { error: t.actions.admin.missingData };
 
   const { error } = await supabase
     .from("modules")
@@ -241,32 +246,34 @@ export async function updateModule(moduleId: string, formData: FormData) {
 
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Módulo actualizado" };
+  return { success: t.actions.admin.moduleUpdated };
 }
 
 export async function deleteModule(moduleId: string) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const { error } = await supabase.from("modules").delete().eq("id", moduleId);
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Módulo eliminado" };
+  return { success: t.actions.admin.moduleDeleted };
 }
 
 // ── LECCIONES ──────────────────────────────────────────────
 
-const lessonSchema = z.object({
-  title: z.string().min(2, "El título es obligatorio"),
-  description: z.string().optional(),
-  content: z.string().optional(),
-  video_url: z.string().optional(),
-  duration_minutes: z.coerce.number().min(0).optional(),
-  thumbnail_url: z.string().optional(),
-  published: z.coerce.boolean().optional(),
-});
+function lessonSchema(t: AppT) {
+  return z.object({
+    title: z.string().min(2, t.actions.admin.titleRequired),
+    description: z.string().optional(),
+    content: z.string().optional(),
+    video_url: z.string().optional(),
+    duration_minutes: z.coerce.number().min(0).optional(),
+    thumbnail_url: z.string().optional(),
+    published: z.coerce.boolean().optional(),
+  });
+}
 
 export async function createLesson(moduleId: string, prev: ActionState, formData: FormData): Promise<ActionState> {
-  const supabase = await admin();
-  const parsed = lessonSchema.safeParse(Object.fromEntries(formData));
+  const { supabase, t } = await admin();
+  const parsed = lessonSchema(t).safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
   const { data: next } = await supabase
@@ -291,13 +298,13 @@ export async function createLesson(moduleId: string, prev: ActionState, formData
 
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Lección creada" };
+  return { success: t.actions.admin.lessonCreated };
 }
 
 // Crea una lección "al vuelo" a partir de un archivo soltado/subido
 // directo sobre el módulo (sin pasar por el diálogo de lección).
 export async function quickCreateLesson(moduleId: string, title: string) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
 
   const { data: next } = await supabase
     .from("lessons")
@@ -320,12 +327,12 @@ export async function quickCreateLesson(moduleId: string, title: string) {
 
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Lección creada", lessonId: data.id as string };
+  return { success: t.actions.admin.lessonCreated, lessonId: data.id as string };
 }
 
 export async function updateLesson(lessonId: string, prev: ActionState, formData: FormData): Promise<ActionState> {
-  const supabase = await admin();
-  const parsed = lessonSchema.safeParse(Object.fromEntries(formData));
+  const { supabase, t } = await admin();
+  const parsed = lessonSchema(t).safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
   // El campo "video_url" del formulario solo sirve para enlaces externos
@@ -347,56 +354,57 @@ export async function updateLesson(lessonId: string, prev: ActionState, formData
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
   revalidatePath("/lessons", "layout");
-  return { success: "Lección actualizada" };
+  return { success: t.actions.admin.lessonUpdated };
 }
 
 export async function deleteLesson(lessonId: string) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const { error } = await supabase.from("lessons").delete().eq("id", lessonId);
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Lección eliminada" };
+  return { success: t.actions.admin.lessonDeleted };
 }
 
 // ── ARCHIVOS DE LECCIÓN ────────────────────────────────────
 
 export async function addLessonFile(formData: FormData) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const lessonId = String(formData.get("lesson_id") || "");
   const name = String(formData.get("name") || "").trim();
   const url = String(formData.get("url") || "").trim();
   const type = String(formData.get("type") || "file");
-  if (!lessonId || !name || !url) return { error: "Faltan datos" };
+  if (!lessonId || !name || !url) return { error: t.actions.admin.missingData };
 
   const { error } = await supabase.from("lesson_files").insert({ lesson_id: lessonId, name, url, type });
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
   revalidatePath("/lessons", "layout");
-  return { success: "Archivo agregado" };
+  return { success: t.actions.admin.fileAdded };
 }
 
 export async function deleteLessonFile(fileId: string) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const { error } = await supabase.from("lesson_files").delete().eq("id", fileId);
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
   revalidatePath("/lessons", "layout");
-  return { success: "Archivo eliminado" };
+  return { success: t.actions.admin.fileDeleted };
 }
 
 // ── USUARIOS ───────────────────────────────────────────────
 
 export async function createUserByAdmin(prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireAdmin();
+  const { t } = await getT();
 
   const name = String(formData.get("name") || "").trim();
   const email = String(formData.get("email") || "").trim().toLowerCase();
   const password = String(formData.get("password") || "");
   const role = formData.get("role") === "admin" ? "admin" : "student";
 
-  if (!name) return { error: "Falta el nombre" };
-  if (!z.string().email().safeParse(email).success) return { error: "Correo inválido" };
-  if (password.length < 6) return { error: "La contraseña debe tener al menos 6 caracteres" };
+  if (!name) return { error: t.actions.admin.missingName };
+  if (!z.string().email().safeParse(email).success) return { error: t.actions.admin.invalidEmail };
+  if (password.length < 6) return { error: t.actions.admin.passwordMinChars };
 
   const supabase = createAdminClient();
   const { data, error } = await supabase.auth.admin.createUser({
@@ -417,52 +425,54 @@ export async function createUserByAdmin(prev: ActionState, formData: FormData): 
   }
 
   revalidatePath("/admin", "layout");
-  return { success: `Usuario ${email} creado` };
+  return { success: t.actions.admin.userCreated(email) };
 }
 
 export async function updateUserRole(userId: string, role: "admin" | "student") {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const { error } = await supabase.from("profiles").update({ role }).eq("id", userId);
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Rol actualizado" };
+  return { success: t.actions.admin.roleUpdated };
 }
 
 export async function updateUserStatus(userId: string, status: "active" | "suspended") {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const { error } = await supabase.from("profiles").update({ status }).eq("id", userId);
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: status === "active" ? "Usuario activado" : "Usuario suspendido" };
+  return { success: status === "active" ? t.actions.admin.userActivated : t.actions.admin.userSuspended };
 }
 
 export async function resetUserPassword(userId: string, password: string) {
   await requireAdmin();
-  if (password.length < 6) return { error: "Mínimo 6 caracteres" };
+  const { t } = await getT();
+  if (password.length < 6) return { error: t.actions.admin.passwordMin6 };
   const supabase = createAdminClient();
   const { error } = await supabase.auth.admin.updateUserById(userId, { password });
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Contraseña restablecida" };
+  return { success: t.actions.admin.passwordReset };
 }
 
 export async function deleteUser(userId: string) {
   await requireAdmin();
+  const { t } = await getT();
   const supabase = createAdminClient();
   const { error } = await supabase.auth.admin.deleteUser(userId);
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Usuario eliminado" };
+  return { success: t.actions.admin.userDeleted };
 }
 
 export async function enrollUser(userId: string, courseId: string, tier: Tier) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const { error } = await supabase
     .from("enrollments")
     .upsert({ user_id: userId, course_id: courseId, tier }, { onConflict: "user_id,course_id" });
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Alumno inscrito" };
+  return { success: t.actions.admin.studentEnrolled };
 }
 
 // ── PLANES ─────────────────────────────────────────────────
@@ -483,7 +493,7 @@ const planSchema = z.object({
 // Edita uno de los 3 niveles de precio de un curso (ya existen desde
 // que se crea el curso: acá solo se actualizan, no se crean sueltos).
 export async function savePlan(planId: string, prev: ActionState, formData: FormData): Promise<ActionState> {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const parsed = planSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
@@ -503,26 +513,26 @@ export async function savePlan(planId: string, prev: ActionState, formData: Form
 
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Plan guardado" };
+  return { success: t.actions.admin.planSaved };
 }
 
 // ── CATEGORÍAS ─────────────────────────────────────────────
 
 export async function createCategory(formData: FormData) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const name = String(formData.get("name") || "").trim();
-  if (!name) return { error: "Falta el nombre" };
+  if (!name) return { error: t.actions.admin.missingName };
 
   const { error } = await supabase.from("categories").insert({ name, slug: uniqueSlug(name) });
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Categoría creada" };
+  return { success: t.actions.admin.categoryCreated };
 }
 
 // ── CONFIGURACIÓN ──────────────────────────────────────────
 
 export async function updateSiteSettings(prev: ActionState, formData: FormData): Promise<ActionState> {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const value = {
     brandName: String(formData.get("brandName") || "").trim() || "7 Digital LLC",
     supportEmail: String(formData.get("supportEmail") || "").trim(),
@@ -539,7 +549,7 @@ export async function updateSiteSettings(prev: ActionState, formData: FormData):
   const { error } = await supabase.from("settings").upsert({ key: "site", value, updated_at: new Date().toISOString() });
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
-  return { success: "Configuración guardada" };
+  return { success: t.actions.admin.settingsSaved };
 }
 
 // ── STORAGE ────────────────────────────────────────────────
@@ -564,19 +574,19 @@ export async function createUploadTicket(path: string) {
 }
 
 export async function setLessonVideo(lessonId: string, path: string) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const { error } = await supabase.from("lessons").update({ video_url: path }).eq("id", lessonId);
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
   revalidatePath("/lessons", "layout");
-  return { success: "Video subido" };
+  return { success: t.actions.admin.videoUploaded };
 }
 
 export async function removeLessonVideo(lessonId: string) {
-  const supabase = await admin();
+  const { supabase, t } = await admin();
   const { error } = await supabase.from("lessons").update({ video_url: null }).eq("id", lessonId);
   if (error) return { error: error.message };
   revalidatePath("/admin", "layout");
   revalidatePath("/lessons", "layout");
-  return { success: "Video eliminado" };
+  return { success: t.actions.admin.videoDeleted };
 }

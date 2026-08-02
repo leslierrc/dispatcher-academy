@@ -6,11 +6,13 @@ import { updateSiteSettings, type ActionState } from "@/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAppI18n } from "@/hooks/use-app-i18n";
 import type { SettingsValue } from "@/lib/types";
 
 const initialState: ActionState = {};
 
 export default function SettingsForm({ settings }: { settings: SettingsValue }) {
+  const { t } = useAppI18n();
   const [state, action, pending] = useActionState(updateSiteSettings, initialState);
 
   return (
@@ -27,43 +29,41 @@ export default function SettingsForm({ settings }: { settings: SettingsValue }) 
       )}
 
       <section className="flex flex-col gap-4">
-        <h2 className="font-heading text-xl text-text">Marca</h2>
+        <h2 className="font-heading text-xl text-text">{t.admin.settings.brand}</h2>
         <div className="flex flex-col gap-1.5 sm:max-w-md">
-          <Label htmlFor="brandName">Nombre de la marca</Label>
+          <Label htmlFor="brandName">{t.admin.settings.brandName}</Label>
           <Input id="brandName" name="brandName" defaultValue={settings.brandName} />
-          <p className="text-xs text-neutral-500">Aparece en el pie de página y en los correos.</p>
+          <p className="text-xs text-neutral-500">{t.admin.settings.brandNameHint}</p>
         </div>
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="font-heading text-xl text-text">Contacto</h2>
-        <p className="text-xs text-neutral-500 -mt-2">
-          Esta información se muestra en el pie de página y en la página de Contacto del sitio.
-        </p>
+        <h2 className="font-heading text-xl text-text">{t.admin.settings.contact}</h2>
+        <p className="text-xs text-neutral-500 -mt-2">{t.admin.settings.contactHint}</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="supportEmail">Email de soporte</Label>
+            <Label htmlFor="supportEmail">{t.admin.settings.supportEmail}</Label>
             <Input id="supportEmail" name="supportEmail" type="email" defaultValue={settings.supportEmail} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="contactEmail">Email general</Label>
+            <Label htmlFor="contactEmail">{t.admin.settings.contactEmail}</Label>
             <Input id="contactEmail" name="contactEmail" type="email" defaultValue={settings.contactEmail} />
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="whatsapp">WhatsApp</Label>
+            <Label htmlFor="whatsapp">{t.admin.settings.whatsapp}</Label>
             <Input id="whatsapp" name="whatsapp" defaultValue={settings.whatsapp} placeholder="+1..." />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="contactPhone">Teléfono</Label>
+            <Label htmlFor="contactPhone">{t.admin.settings.phone}</Label>
             <Input id="contactPhone" name="contactPhone" defaultValue={settings.contactPhone} />
           </div>
         </div>
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="font-heading text-xl text-text">Redes sociales</h2>
+        <h2 className="font-heading text-xl text-text">{t.admin.settings.socialNetworks}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="instagram">Instagram</Label>
@@ -83,14 +83,14 @@ export default function SettingsForm({ settings }: { settings: SettingsValue }) 
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="address">Dirección</Label>
+          <Label htmlFor="address">{t.admin.settings.address}</Label>
           <Input id="address" name="address" defaultValue={settings.address} />
         </div>
       </section>
 
       <Button type="submit" disabled={pending} className="w-fit">
         {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-        {pending ? "Guardando…" : "Guardar configuración"}
+        {pending ? t.admin.settings.saving : t.admin.settings.save}
       </Button>
     </form>
   );

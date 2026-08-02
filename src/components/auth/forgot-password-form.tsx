@@ -7,10 +7,12 @@ import { forgotPassword } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAppI18n } from "@/hooks/use-app-i18n";
 
 const initialState = { error: "", success: "" };
 
 export default function ForgotPasswordForm() {
+  const { t } = useAppI18n();
   const [state, action, pending] = useActionState(forgotPassword, initialState);
 
   return (
@@ -25,20 +27,18 @@ export default function ForgotPasswordForm() {
           {state.success}
         </div>
       )}
-      <p className="text-sm text-neutral-400 -mt-1">
-        Te enviaremos un enlace a tu correo para restablecer tu contraseña.
-      </p>
+      <p className="text-sm text-neutral-400 -mt-1">{t.auth.forgotSubtitle}</p>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="email">Correo electrónico</Label>
+        <Label htmlFor="email">{t.auth.email}</Label>
         <Input id="email" name="email" type="email" placeholder="tu@correo.com" required autoComplete="email" />
       </div>
       <Button type="submit" size="lg" disabled={pending} className="mt-1">
         {pending && <Loader2 className="h-4 w-4 animate-spin" />}
-        {pending ? "Enviando…" : "Enviar enlace"}
+        {pending ? t.auth.sending : t.auth.sendLink}
       </Button>
       <p className="text-center text-sm text-neutral-400 mt-2">
         <Link href="/login" className="text-accent-300 hover:underline">
-          Volver a iniciar sesión
+          {t.auth.backToLogin}
         </Link>
       </p>
     </form>

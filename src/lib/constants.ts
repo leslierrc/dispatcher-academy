@@ -2,6 +2,15 @@ import type { SettingsValue, Tier } from "@/lib/types";
 
 export const APP_NAME = "7 Digital LLC";
 
+// NEXT_PUBLIC_APP_URL a veces se carga con "/" al final (copiado tal
+// cual del navegador o de Vercel). Concatenar eso con "/dashboard" da
+// "...app//dashboard" — Supabase no lo reconoce como un redirect_to
+// válido y termina mandando a la URL de fallback (localhost). Esta
+// función centraliza el valor ya limpio para usar en toda la app.
+export function getAppUrl() {
+  return (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/+$/, "");
+}
+
 // Orden de nivel (para comparar "¿alcanza este tier para ver X?").
 export const TIER_RANK: Record<Tier, number> = { basico: 0, medio: 1, pro: 2 };
 

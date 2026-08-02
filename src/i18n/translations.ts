@@ -73,7 +73,7 @@ export const translations = {
       login: "Log in",
     },
     hero: {
-      kicker: "Freight dispatch certification",
+      kicker: "Freight dispatch training",
       title: "Become a Freight Dispatcher and work remote",
       subtitle:
         "7 Digital LLC trains you step by step to land your first contract in the U.S. trucking industry — with 1:1 mentorship from Carla.",
@@ -123,7 +123,7 @@ export const translations = {
         "Every module comes from real dispatch cases, and every student gets close follow-up until they land their first contract.",
       creds: [
         "Years dispatching freight in the U.S.",
-        "Hundreds of certified students",
+        "Hundreds of students trained",
         "Personalized 1:1 mentorship with Carla",
       ],
       instagramCta: "Follow Carla",
@@ -141,8 +141,8 @@ export const translations = {
           body: "Support from peers and alumni already working in the industry.",
         },
         {
-          title: "Certification",
-          body: "Receive your 7 Digital LLC certificate when you complete the curriculum.",
+          title: "Lifetime access",
+          body: "Come back to the classes and materials whenever you need to.",
         },
         {
           title: "1:1 mentorship",
@@ -166,7 +166,7 @@ export const translations = {
         { title: "Driver communication", body: "Coordinating routes and solving issues" },
         { title: "Your client roster", body: "From one contract to a stable roster" },
         { title: "Personal marketing", body: "How to sell yourself as an independent dispatcher" },
-        { title: "Simulation & certification", body: "Practice a real case and get your certificate" },
+        { title: "Final simulation", body: "Practice a real case with personalized feedback from Carla" },
       ],
     },
     pricing: {
@@ -190,14 +190,14 @@ export const translations = {
         {
           ...TESTIMONIAL_IMAGES.test2,
           name: "Daniela V.",
-          role: "Alumna, Pro plan",
+          role: "Alumna, Medio plan",
           quote:
             "The course is straight to the point, no filler. I learned exactly what I use every day.",
         },
         {
           ...TESTIMONIAL_IMAGES.test3,
           name: "Jonathan T.",
-          role: "Dispatcher, Premium",
+          role: "Dispatcher, Pro plan",
           quote:
             "Reviewing my first contract with Carla saved me from mistakes that would have cost me a lot.",
         },
@@ -213,7 +213,7 @@ export const translations = {
         },
         {
           q: "How long do I have access?",
-          a: "Lifetime access to recorded classes on Pro and Premium; 12 months on Basic.",
+          a: "Lifetime access to the material on every plan, from the moment you enroll.",
         },
         {
           q: "Can I work 100% remote after finishing?",
@@ -225,7 +225,7 @@ export const translations = {
         },
         {
           q: "Is the 1:1 mentorship directly with Carla?",
-          a: "Yes, Premium sessions are personal and live with Carla.",
+          a: "Yes, mentorship sessions on the Pro plan are personal and live with Carla.",
         },
       ],
     },
@@ -250,7 +250,7 @@ export const translations = {
       login: "Iniciar sesión",
     },
     hero: {
-      kicker: "Certificación en despacho de fletes",
+      kicker: "Formación en despacho de fletes",
       title: "Conviértete en Dispatcher de Fletes y trabaja remoto",
       subtitle:
         "7 Digital LLC te forma paso a paso para conseguir tu primer contrato en la industria del transporte de EE. UU. — con mentoría 1:1 de Carla.",
@@ -295,12 +295,12 @@ export const translations = {
       kicker: "Sobre Carla",
       title: "Aprende el oficio de quien lo vive todos los días",
       body1:
-        "Con años despachando fletes en EE. UU., Carla fundó esta academia para enseñar el oficio real: negociación de cargas, brokers, documentación y flujo de caja — no teoría de manual.",
+        "Con años despachando fletes en EE. UU., Carla fundó este programa para enseñar el oficio real: negociación de cargas, brokers, documentación y flujo de caja — no teoría de manual.",
       body2:
         "Cada módulo viene de casos reales de despacho, y cada estudiante recibe seguimiento cercano hasta conseguir su primer contrato.",
       creds: [
         "Años despachando fletes en EE. UU.",
-        "Cientos de estudiantes certificados",
+        "Cientos de estudiantes formados",
         "Mentoría 1:1 personalizada con Carla",
       ],
       instagramCta: "Sigue a Carla",
@@ -318,8 +318,8 @@ export const translations = {
           body: "Acompañamiento entre alumnos y egresados ya trabajando en la industria.",
         },
         {
-          title: "Certificación",
-          body: "Recibe tu certificado de 7 Digital LLC al completar la currícula.",
+          title: "Acceso de por vida",
+          body: "Vuelve a las clases y materiales cuando lo necesites.",
         },
         {
           title: "Mentoría 1:1",
@@ -343,7 +343,7 @@ export const translations = {
         { title: "Comunicación con el driver", body: "Coordinar rutas y resolver imprevistos" },
         { title: "Tu cartera de clientes", body: "De un contrato a una cartera estable" },
         { title: "Marketing personal", body: "Cómo venderte como dispatcher independiente" },
-        { title: "Simulacro y certificación", body: "Practica un caso real y recibe tu certificado" },
+        { title: "Simulacro final", body: "Practica un caso real con retroalimentación personalizada de Carla" },
       ],
     },
     pricing: {
@@ -367,14 +367,14 @@ export const translations = {
         {
           ...TESTIMONIAL_IMAGES.test2,
           name: "Daniela V.",
-          role: "Ex-alumna, Plan Pro",
+          role: "Ex-alumna, plan Medio",
           quote:
             "El curso es directo al grano, sin relleno. Aprendí exactamente lo que uso todos los días.",
         },
         {
           ...TESTIMONIAL_IMAGES.test3,
           name: "Jonathan T.",
-          role: "Dispatcher, Premium",
+          role: "Dispatcher, plan Pro",
           quote:
             "La revisión de mi primer contrato con Carla me ahorró errores que me hubieran costado caro.",
         },
@@ -390,7 +390,7 @@ export const translations = {
         },
         {
           q: "¿Cuánto tiempo tengo acceso al curso?",
-          a: "Acceso de por vida a las clases grabadas en los planes Pro y Premium; 12 meses en el plan Básico.",
+          a: "Acceso de por vida al material en cualquier plan, desde el momento en que te inscribís.",
         },
         {
           q: "¿Puedo trabajar 100% remoto al terminar?",
@@ -402,7 +402,7 @@ export const translations = {
         },
         {
           q: "¿La mentoría 1:1 es con Carla directamente?",
-          a: "Sí, las sesiones del plan Premium son personales y en vivo con Carla.",
+          a: "Sí, las sesiones del plan Pro son personales y en vivo con Carla.",
         },
       ],
     },

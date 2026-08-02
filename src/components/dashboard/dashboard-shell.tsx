@@ -18,13 +18,10 @@ import {
 import { logout } from "@/actions/auth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Logo, { LogoMark } from "@/components/ui/Logo";
+import LanguageToggle from "@/components/ui/language-toggle";
+import { AppI18nProvider, useAppI18n } from "@/hooks/use-app-i18n";
 import { cn } from "@/lib/utils";
-
-const NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/courses", label: "Mis Cursos", icon: BookOpen },
-  { href: "/dashboard/profile", label: "Mi Perfil", icon: User },
-];
+import type { Locale } from "@/i18n/translations";
 
 const COLLAPSE_KEY = "app-sidebar-collapsed";
 
@@ -40,14 +37,37 @@ function initials(name?: string | null) {
 
 export default function DashboardShell({
   user,
+  initialLocale,
+  children,
+}: {
+  user: { id: string; name: string | null; email: string | null; role: string };
+  initialLocale: Locale;
+  children: React.ReactNode;
+}) {
+  return (
+    <AppI18nProvider initialLocale={initialLocale}>
+      <DashboardShellInner user={user}>{children}</DashboardShellInner>
+    </AppI18nProvider>
+  );
+}
+
+function DashboardShellInner({
+  user,
   children,
 }: {
   user: { id: string; name: string | null; email: string | null; role: string };
   children: React.ReactNode;
 }) {
+  const { t } = useAppI18n();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+
+  const NAV = [
+    { href: "/dashboard", label: t.shell.nav.dashboard, icon: LayoutDashboard },
+    { href: "/dashboard/courses", label: t.shell.nav.myCourses, icon: BookOpen },
+    { href: "/dashboard/profile", label: t.shell.nav.myProfile, icon: User },
+  ];
 
   useEffect(() => {
     // Se lee después del montaje (no en el render) para evitar un
@@ -86,8 +106,8 @@ export default function DashboardShell({
             <button
               onClick={toggleCollapsed}
               className="text-neutral-400 hover:text-accent-300 cursor-pointer flex-none"
-              aria-label="Colapsar menú"
-              title="Colapsar menú"
+              aria-label={t.shell.collapseMenu}
+              title={t.shell.collapseMenu}
             >
               <PanelLeftClose className="w-4.5 h-4.5" />
             </button>
@@ -97,8 +117,8 @@ export default function DashboardShell({
           <button
             onClick={toggleCollapsed}
             className="mx-auto mt-3 text-neutral-400 hover:text-accent-300 cursor-pointer"
-            aria-label="Expandir menú"
-            title="Expandir menú"
+            aria-label={t.shell.expandMenu}
+            title={t.shell.expandMenu}
           >
             <PanelLeftOpen className="w-4.5 h-4.5" />
           </button>
@@ -129,38 +149,38 @@ export default function DashboardShell({
           {user.role === "admin" && (
             <Link
               href="/admin"
-              title={collapsed ? "Volver al panel admin" : undefined}
+              title={collapsed ? t.shell.backToAdmin : undefined}
               className={cn(
                 "flex items-center gap-3 rounded-md py-2.5 text-sm text-accent-300 hover:bg-accent/10 transition-colors",
                 collapsed ? "justify-center px-2.5" : "px-3",
               )}
             >
               <ShieldCheck className="w-4.5 h-4.5 flex-none" />
-              {!collapsed && "Volver al panel admin"}
+              {!collapsed && t.shell.backToAdmin}
             </Link>
           )}
           <Link
             href="/"
-            title={collapsed ? "Ver sitio web" : undefined}
+            title={collapsed ? t.shell.viewSite : undefined}
             className={cn(
               "flex items-center gap-3 rounded-md py-2.5 text-sm text-neutral-300 hover:bg-surface hover:text-text transition-colors",
               collapsed ? "justify-center px-2.5" : "px-3",
             )}
           >
             <Home className="w-4.5 h-4.5 flex-none" />
-            {!collapsed && "Ver sitio web"}
+            {!collapsed && t.shell.viewSite}
           </Link>
           <form action={logout}>
             <button
               type="submit"
-              title={collapsed ? "Cerrar sesión" : undefined}
+              title={collapsed ? t.shell.logout : undefined}
               className={cn(
                 "flex items-center gap-3 rounded-md py-2.5 text-sm text-neutral-300 hover:bg-red-500/10 hover:text-red-300 transition-colors cursor-pointer w-full",
                 collapsed ? "justify-center px-2.5" : "px-3",
               )}
             >
               <LogOut className="w-4.5 h-4.5 flex-none" />
-              {!collapsed && "Cerrar sesión"}
+              {!collapsed && t.shell.logout}
             </button>
           </form>
         </div>
@@ -199,12 +219,12 @@ export default function DashboardShell({
                   className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-accent-300"
                 >
                   <ShieldCheck className="w-4.5 h-4.5" />
-                  Volver al panel admin
+                  {t.shell.backToAdmin}
                 </Link>
               )}
               <Link href="/" className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-neutral-300">
                 <Home className="w-4.5 h-4.5" />
-                Ver sitio web
+                {t.shell.viewSite}
               </Link>
             </nav>
           </aside>
@@ -218,17 +238,18 @@ export default function DashboardShell({
             <button
               onClick={() => setMobileOpen(true)}
               className="lg:hidden text-text cursor-pointer"
-              aria-label="Abrir menú"
+              aria-label={t.shell.openMenu}
             >
               <Menu className="w-5 h-5" />
             </button>
             <span className="text-sm text-neutral-400 hidden sm:block">
-              {user.role === "admin" ? "Panel de administración" : "Panel del alumno"}
+              {user.role === "admin" ? t.shell.adminPanel : t.shell.studentPanel}
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <LanguageToggle />
             <div className="text-right hidden sm:block">
-              <div className="text-sm font-medium text-text">{user.name || "Alumno"}</div>
+              <div className="text-sm font-medium text-text">{user.name || t.shell.student}</div>
               <div className="text-xs text-neutral-500">{user.email}</div>
             </div>
             <Avatar>

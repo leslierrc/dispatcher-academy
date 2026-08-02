@@ -4,16 +4,21 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { sendResetPasswordEmail, sendWelcomeEmail } from "@/services/email";
+import { getAppUrl } from "@/lib/constants";
+import { getT } from "@/lib/locale";
+import type { AppT } from "@/i18n/app";
 
 export type AuthState = {
   error?: string;
   success?: string;
 };
 
-const loginSchema = z.object({
-  email: z.string().email("Correo inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-});
+function loginSchema(t: AppT) {
+  return z.object({
+    email: z.string().email(t.actions.auth.invalidEmail),
+    password: z.string().min(6, t.actions.auth.passwordMinChars),
+  });
+}
 
 function isAdminEmail(email: string | null | undefined) {
   const adminEmails = (process.env.ADMIN_EMAILS ?? "")
@@ -24,15 +29,18 @@ function isAdminEmail(email: string | null | undefined) {
   return Boolean(email && adminEmails.includes(email.toLowerCase()));
 }
 
-const registerSchema = z.object({
-  name: z.string().min(2, "Escribe tu nombre completo"),
-  email: z.string().email("Correo inválido"),
-  password: z.string().min(6, "Mínimo 6 caracteres"),
-  redirect: z.string().optional(),
-});
+function registerSchema(t: AppT) {
+  return z.object({
+    name: z.string().min(2, t.actions.auth.fullNameRequired),
+    email: z.string().email(t.actions.auth.invalidEmail),
+    password: z.string().min(6, t.actions.auth.passwordMin6),
+    redirect: z.string().optional(),
+  });
+}
 
 export async function login(prev: AuthState, formData: FormData): Promise<AuthState> {
-  const parsed = loginSchema.safeParse({
+  const { t } = await getT();
+  const parsed = loginSchema(t).safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
   });
@@ -49,7 +57,7 @@ export async function login(prev: AuthState, formData: FormData): Promise<AuthSt
 
   if (error) {
     if (error.message.includes("Invalid login credentials")) {
-      return { error: "Correo o contraseña incorrectos." };
+      return { error: t.actions.auth.invalidCredentials };
     }
     return { error: error.message };
   }
@@ -68,7 +76,8 @@ export async function login(prev: AuthState, formData: FormData): Promise<AuthSt
 }
 
 export async function register(prev: AuthState, formData: FormData): Promise<AuthState> {
-  const parsed = registerSchema.safeParse({
+  const { t } = await getT();
+  const parsed = registerSchema(t).safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
@@ -78,13 +87,15 @@ export async function register(prev: AuthState, formData: FormData): Promise<Aut
     return { error: parsed.error.issues[0].message };
   }
 
+  const next = formData.get("next") as string | null;
+
   const supabase = await createClient();
   const { error, data } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       data: { name: parsed.data.name },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+      emailRedirectTo: `${getAppUrl()}${next || "/dashboard"}`,
     },
   });
 
@@ -94,36 +105,38 @@ export async function register(prev: AuthState, formData: FormData): Promise<Aut
 
   // Si el email requiere confirmación, mostramos mensaje.
   if (data.session) {
-    redirect("/dashboard");
+    redirect(next || "/dashboard");
   }
-  return { success: "Revisa tu correo para confirmar tu cuenta." };
+  return { success: t.actions.auth.checkEmailToConfirm };
 }
 
 export async function forgotPassword(prev: AuthState, formData: FormData): Promise<AuthState> {
+  const { t } = await getT();
   const email = String(formData.get("email") || "").trim();
   if (!z.string().email().safeParse(email).success) {
-    return { error: "Correo inválido" };
+    return { error: t.actions.auth.invalidEmail };
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`,
+    redirectTo: `${getAppUrl()}/reset-password`,
   });
 
   if (error) return { error: error.message };
 
   await sendResetPasswordEmail(
     email,
-    `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?email=${encodeURIComponent(email)}`,
+    `${getAppUrl()}/reset-password?email=${encodeURIComponent(email)}`,
   );
 
-  return { success: "Si el correo existe, te enviamos las instrucciones." };
+  return { success: t.actions.auth.resetInstructionsSent };
 }
 
 export async function updatePassword(prev: AuthState, formData: FormData): Promise<AuthState> {
+  const { t } = await getT();
   const password = String(formData.get("password") || "");
   if (password.length < 6) {
-    return { error: "La contraseña debe tener al menos 6 caracteres" };
+    return { error: t.actions.auth.passwordMinChars };
   }
 
   const supabase = await createClient();

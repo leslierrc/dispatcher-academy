@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import PublicShell from "./_components/public-shell";
 import { getSiteSettings } from "@/lib/data";
+import { getAppUrl } from "@/lib/constants";
+import { getLocale } from "@/lib/locale";
 
 export const metadata: Metadata = {
   title: {
-    default: "7 Digital LLC — Certificación en Despacho de Fletes",
+    default: "7 Digital LLC — Formación en Despacho de Fletes",
     template: "%s | 7 Digital LLC",
   },
   description:
@@ -25,14 +27,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_ES",
     siteName: "7 Digital LLC",
-    title: "7 Digital LLC — Certificación en Despacho de Fletes",
+    title: "7 Digital LLC — Formación en Despacho de Fletes",
     description:
       "La plataforma para aprender el oficio que transforma tu vida. Mentoría 1:1 con Carla.",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "7 Digital LLC" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "7 Digital LLC — Certificación en Despacho de Fletes",
+    title: "7 Digital LLC — Formación en Despacho de Fletes",
     description: "La plataforma para aprender el oficio que transforma tu vida.",
     images: ["/og-image.png"],
   },
@@ -50,28 +52,23 @@ export const metadata: Metadata = {
 };
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
-  const settings = await getSiteSettings();
+  const [settings, initialLocale] = await Promise.all([getSiteSettings(), getLocale()]);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
     name: "7 Digital LLC",
     description:
       "Formamos personas sin experiencia previa para que entren a la industria del transporte con un oficio real, ingresos propios y la libertad de trabajar desde donde quieran.",
-    url: process.env.NEXT_PUBLIC_APP_URL,
-    logo: `${process.env.NEXT_PUBLIC_APP_URL}/logo.png`,
+    url: getAppUrl(),
+    logo: `${getAppUrl()}/logo.png`,
     sameAs: [],
     address: { "@type": "PostalAddress", addressCountry: "US" },
-    offers: [
-      { "@type": "Offer", name: "Básico", price: "297", priceCurrency: "USD", priceValidUntil: "2026-12-31" },
-      { "@type": "Offer", name: "Pro", price: "597", priceCurrency: "USD", priceValidUntil: "2026-12-31" },
-      { "@type": "Offer", name: "VIP", price: "1297", priceCurrency: "USD", priceValidUntil: "2026-12-31" },
-    ],
   };
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <PublicShell settings={settings}>{children}</PublicShell>
+      <PublicShell settings={settings} initialLocale={initialLocale}>{children}</PublicShell>
     </>
   );
 }

@@ -198,8 +198,8 @@ export default function Hero() {
               <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
               7 DIGITAL LLC &middot;{" "}
               {isES
-                ? "CERTIFICACIÓN EN DESPACHO DE FLETES"
-                : "FREIGHT DISPATCH CERTIFICATION"}
+                ? "FORMACIÓN EN DESPACHO DE FLETES"
+                : "FREIGHT DISPATCH TRAINING"}
             </motion.div>
 
             <h1 className="font-heading font-light leading-[0.92] tracking-[-0.03em] text-balance">

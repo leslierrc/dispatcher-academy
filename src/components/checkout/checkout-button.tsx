@@ -1,9 +1,8 @@
-"use client";
+import Link from "next/link";
 
-import { useTransition } from "react";
-import { Loader2 } from "lucide-react";
-import { checkout } from "@/actions/checkout";
-
+// Va a /checkout/[planId], que decide: si no hay sesión, pasa primero
+// por login/registro y vuelve acá solo; si ya está logueado, sigue
+// directo a Stripe. Mismo componente sirve logueado o no.
 export default function CheckoutButton({
   planId,
   className,
@@ -15,21 +14,9 @@ export default function CheckoutButton({
   style?: React.CSSProperties;
   children: React.ReactNode;
 }) {
-  const [pending, startTransition] = useTransition();
-
   return (
-    <button
-      type="button"
-      disabled={pending}
-      onClick={() => {
-        startTransition(async () => {
-          await checkout(planId);
-        });
-      }}
-      className={className}
-      style={style}
-    >
-      {pending ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : children}
-    </button>
+    <Link href={`/checkout/${planId}`} className={className} style={style}>
+      {children}
+    </Link>
   );
 }

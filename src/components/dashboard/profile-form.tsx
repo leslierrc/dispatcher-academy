@@ -6,6 +6,7 @@ import { updateProfile, type ActionState } from "@/actions/courses";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAppI18n } from "@/hooks/use-app-i18n";
 
 const initialState: ActionState = {};
 
@@ -18,6 +19,7 @@ export default function ProfileForm({
   email: string | null;
   phone: string | null;
 }) {
+  const { t } = useAppI18n();
   const [state, action, pending] = useActionState(updateProfile, initialState);
 
   return (
@@ -34,21 +36,21 @@ export default function ProfileForm({
         </div>
       )}
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="name">Nombre completo</Label>
+        <Label htmlFor="name">{t.profile.fullName}</Label>
         <Input id="name" name="name" defaultValue={name ?? ""} required />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="email">Correo electrónico</Label>
+        <Label htmlFor="email">{t.profile.email}</Label>
         <Input id="email" value={email ?? ""} disabled />
-        <span className="text-xs text-neutral-500">El correo no se puede cambiar en esta versión.</span>
+        <span className="text-xs text-neutral-500">{t.profile.emailLocked}</span>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="phone">WhatsApp / Teléfono</Label>
+        <Label htmlFor="phone">{t.profile.phone}</Label>
         <Input id="phone" name="phone" defaultValue={phone ?? ""} placeholder="+1..." />
       </div>
       <Button type="submit" disabled={pending} className="mt-2 w-fit">
         {pending && <Loader2 className="h-4 w-4 animate-spin" />}
-        {pending ? "Guardando…" : "Guardar cambios"}
+        {pending ? t.profile.saving : t.profile.save}
       </Button>
     </form>
   );

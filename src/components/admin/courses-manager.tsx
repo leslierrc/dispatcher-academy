@@ -16,9 +16,11 @@ import { toggleCourseStatus, deleteCourse, duplicateCourse } from "@/actions/adm
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import CourseFormDialog from "@/components/admin/course-form-dialog";
+import { useAppI18n } from "@/hooks/use-app-i18n";
 import type { Course } from "@/lib/types";
 
 export default function CoursesManager({ courses }: { courses: Course[] }) {
+  const { t } = useAppI18n();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Course | null>(null);
   const [pending, startTransition] = useTransition();
@@ -27,10 +29,8 @@ export default function CoursesManager({ courses }: { courses: Course[] }) {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-3xl text-text">Cursos</h1>
-          <p className="mt-1 text-neutral-400">
-            Crea, edita, publica y organiza tus programas. {courses.length} cursos en total.
-          </p>
+          <h1 className="font-heading text-3xl text-text">{t.admin.courses.title}</h1>
+          <p className="mt-1 text-neutral-400">{t.admin.courses.subtitle(courses.length)}</p>
         </div>
         <Button
           onClick={() => {
@@ -39,7 +39,7 @@ export default function CoursesManager({ courses }: { courses: Course[] }) {
           }}
         >
           <Plus className="h-4 w-4" />
-          Nuevo curso
+          {t.admin.courses.newCourse}
         </Button>
       </div>
 
@@ -53,7 +53,7 @@ export default function CoursesManager({ courses }: { courses: Course[] }) {
               {course.thumbnail_url ? (
                 <Image src={course.thumbnail_url} alt={course.title} fill sizes="144px" className="object-cover" />
               ) : (
-                <div className="flex h-full items-center justify-center text-xs text-neutral-500">Sin imagen</div>
+                <div className="flex h-full items-center justify-center text-xs text-neutral-500">{t.admin.courses.noImage}</div>
               )}
             </div>
 
@@ -61,15 +61,15 @@ export default function CoursesManager({ courses }: { courses: Course[] }) {
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-heading text-lg text-text truncate">{course.title}</h3>
                 <Badge variant={course.published ? "success" : "neutral"}>
-                  {course.published ? "Publicado" : "Oculto"}
+                  {course.published ? t.admin.courses.published : t.admin.courses.hidden}
                 </Badge>
-                {course.featured && <Badge>Destacado</Badge>}
+                {course.featured && <Badge>{t.admin.courses.featured}</Badge>}
               </div>
               <p className="mt-1 line-clamp-1 text-sm text-neutral-400">
-                {course.description || "Sin descripción"}
+                {course.description || t.admin.courses.noDescription}
               </p>
               <div className="mt-1 text-xs text-neutral-500">
-                {course.price ? `$${course.price}` : "Gratis"}
+                {course.price ? `$${course.price}` : t.admin.courses.free}
               </div>
             </div>
 
@@ -77,7 +77,7 @@ export default function CoursesManager({ courses }: { courses: Course[] }) {
               <Link href={`/admin/courses/${course.id}`}>
                 <Button variant="outline" size="sm">
                   <Layers className="h-4 w-4" />
-                  Módulos
+                  {t.admin.courses.content}
                 </Button>
               </Link>
               <Button
@@ -89,7 +89,7 @@ export default function CoursesManager({ courses }: { courses: Course[] }) {
                 }}
               >
                 <Pencil className="h-4 w-4" />
-                Editar
+                {t.admin.courses.edit}
               </Button>
               <Button
                 variant="ghost"
@@ -121,7 +121,7 @@ export default function CoursesManager({ courses }: { courses: Course[] }) {
                 disabled={pending}
                 className="text-red-300 hover:bg-red-500/10 hover:text-red-300"
                 onClick={() => {
-                  if (confirm(`¿Eliminar "${course.title}"? Se borrarán módulos y lecciones.`)) {
+                  if (confirm(t.admin.courses.deleteConfirm(course.title))) {
                     startTransition(() => {
                       deleteCourse(course.id);
                     });
@@ -136,12 +136,12 @@ export default function CoursesManager({ courses }: { courses: Course[] }) {
 
         {courses.length === 0 && (
           <div className="rounded-lg border border-dashed border-divider py-16 text-center text-neutral-500">
-            No hay cursos todavía. Crea el primero.
+            {t.admin.courses.empty}
           </div>
         )}
       </div>
 
-      <CourseFormDialog open={dialogOpen} onOpenChange={setDialogOpen} course={editing} />
+      <CourseFormDialog open={dialogOpen} onOpenChange={setDialogOpen} course={editing} t={t} />
     </div>
   );
 }

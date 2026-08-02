@@ -1,4 +1,5 @@
 import { resend, emailFrom } from "@/lib/resend";
+import { getAppUrl } from "@/lib/constants";
 
 function baseLayout(body: string) {
   return `
@@ -38,7 +39,7 @@ export async function sendWelcomeEmail(to: string, name: string) {
       <h2 style="margin:0 0 12px;font-family:Georgia,serif;font-weight:600;">¡Bienvenido${name ? ", " + name : ""}!</h2>
       <p>Tu cuenta ha sido creada correctamente. Ya puedes acceder a tu dashboard y comenzar tu formación como dispatcher.</p>
       <p style="margin:20px 0;">
-        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" style="background:#a8727a;color:#fff;text-decoration:none;padding:12px 22px;border-radius:6px;display:inline-block;">Ir a mi dashboard</a>
+        <a href="${getAppUrl()}/dashboard" style="background:#a8727a;color:#fff;text-decoration:none;padding:12px 22px;border-radius:6px;display:inline-block;">Ir a mi dashboard</a>
       </p>
       <p style="color:#979089;font-size:13px;">Si no creaste esta cuenta, ignora este correo.</p>
     `),
@@ -54,7 +55,7 @@ export async function sendPurchaseSuccessEmail(to: string, name: string, planNam
       <p>${name ? "Hola " + name + "," : "Hola,"} tu compra del plan <strong>${planName}</strong> fue procesada con éxito.</p>
       <p>Ya tienes acceso completo a tu curso. ¡A por tu nueva carrera como dispatcher!</p>
       <p style="margin:20px 0;">
-        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" style="background:#a8727a;color:#fff;text-decoration:none;padding:12px 22px;border-radius:6px;display:inline-block;">Comenzar mi curso</a>
+        <a href="${getAppUrl()}/dashboard" style="background:#a8727a;color:#fff;text-decoration:none;padding:12px 22px;border-radius:6px;display:inline-block;">Comenzar mi curso</a>
       </p>
     `),
   });
@@ -68,7 +69,7 @@ export async function sendPurchaseFailedEmail(to: string, name: string) {
       <h2 style="margin:0 0 12px;font-family:Georgia,serif;font-weight:600;">Pago no completado</h2>
       <p>${name ? "Hola " + name + "," : "Hola,"} no pudimos procesar tu pago. No te preocupes: puedes reintentar cuando quieras.</p>
       <p style="margin:20px 0;">
-        <a href="${process.env.NEXT_PUBLIC_APP_URL}/#precios" style="background:#a8727a;color:#fff;text-decoration:none;padding:12px 22px;border-radius:6px;display:inline-block;">Ver planes</a>
+        <a href="${getAppUrl()}/#precios" style="background:#a8727a;color:#fff;text-decoration:none;padding:12px 22px;border-radius:6px;display:inline-block;">Ver planes</a>
       </p>
       <p style="color:#979089;font-size:13px;">Si el problema persiste, respóndenos este correo y te ayudamos.</p>
     `),

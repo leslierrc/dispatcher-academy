@@ -5,11 +5,12 @@ import { requireAdmin } from "@/lib/auth-helpers";
 import { getAdminCourseDetail, getCoursePlans } from "@/lib/data";
 import CourseEditor from "@/components/admin/course-editor";
 import CoursePricing from "@/components/admin/course-pricing";
+import { getT } from "@/lib/locale";
 
 export default async function AdminCourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
-  const [detail, plans] = await Promise.all([getAdminCourseDetail(id), getCoursePlans(id)]);
+  const [detail, plans, { t }] = await Promise.all([getAdminCourseDetail(id), getCoursePlans(id), getT()]);
   if (!detail) notFound();
 
   const modules = detail.modules ?? [];
@@ -24,7 +25,7 @@ export default async function AdminCourseDetailPage({ params }: { params: Promis
     <div className="flex flex-col gap-8">
       <Link href="/admin/courses" className="inline-flex w-fit items-center gap-2 text-sm text-neutral-400 hover:text-accent-300 transition-colors">
         <ArrowLeft className="h-4 w-4" />
-        Volver a cursos
+        {t.admin.courses.backToCourses}
       </Link>
       <CoursePricing course={detail} plans={plans} />
       <CourseEditor course={detail} moduleId={moduleId} lessons={lessons} />

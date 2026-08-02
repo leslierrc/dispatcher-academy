@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import LessonFormDialog from "@/components/admin/lesson-form-dialog";
 import { cn } from "@/lib/utils";
+import { useAppI18n } from "@/hooks/use-app-i18n";
 import type { Course, Lesson, LessonFile } from "@/lib/types";
 
 type ContentLesson = Lesson & { files?: LessonFile[] };
@@ -40,7 +41,6 @@ function contentTypeOf(lesson: ContentLesson): "video" | "audio" | "pdf" | "docu
 }
 
 const TYPE_ICON = { video: Film, audio: FileAudio, pdf: FileText, document: FileText, vacio: FileText };
-const TYPE_LABEL = { video: "Video", audio: "Audio", pdf: "PDF", document: "Documento", vacio: "Sin archivo" };
 
 // El visor protegido solo puede mostrar PDF e imágenes sin descargarlos
 // (video tiene su propio reproductor). Word/PowerPoint/Excel no tienen
@@ -112,6 +112,14 @@ export default function CourseEditor({
   moduleId: string | null;
   lessons: ContentLesson[];
 }) {
+  const { t } = useAppI18n();
+  const TYPE_LABEL = {
+    video: t.admin.content.typeVideo,
+    audio: t.admin.content.typeAudio,
+    pdf: t.admin.content.typePdf,
+    document: t.admin.content.typeDocument,
+    vacio: t.admin.content.typeEmpty,
+  };
   const [lessonDialog, setLessonDialog] = useState<{ open: boolean; lesson: Lesson | null }>({
     open: false,
     lesson: null,
@@ -204,19 +212,19 @@ export default function CourseEditor({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-heading text-3xl text-text">Contenido de «{course.title}»</h1>
-        <p className="text-neutral-400">{lessons.length} elementos</p>
+        <h1 className="font-heading text-3xl text-text">{t.admin.content.title(course.title)}</h1>
+        <p className="text-neutral-400">{t.admin.content.itemCount(lessons.length)}</p>
       </div>
 
       {activeUpload ? (
         <div className="flex flex-col gap-3 rounded-lg border-2 border-accent/40 bg-accent/5 px-6 py-6">
           <div className="flex items-center justify-between gap-3">
-            <span className="truncate text-sm text-text">Subiendo «{activeUpload.label}»…</span>
+            <span className="truncate text-sm text-text">{t.admin.content.uploading(activeUpload.label)}</span>
             <div className="flex items-center gap-3 flex-none">
               <span className="text-sm tabular-nums text-accent-300">{activeUpload.percent}%</span>
               <Button variant="outline" size="sm" onClick={cancelUpload}>
                 <X className="h-4 w-4" />
-                Cancelar
+                {t.admin.content.cancel}
               </Button>
             </div>
           </div>
@@ -262,18 +270,13 @@ export default function CourseEditor({
           {preparing ? (
             <>
               <Loader2 className="h-7 w-7 animate-spin text-accent-300" />
-              <span className="text-sm text-text">Preparando…</span>
+              <span className="text-sm text-text">{t.admin.content.preparing}</span>
             </>
           ) : (
             <>
               <UploadCloud className="h-7 w-7 text-accent-300" />
-              <span className="text-sm text-text">
-                Arrastra videos, audios, PDFs o imágenes aquí, o hacé clic para subir
-              </span>
-              <span className="text-xs text-neutral-500">
-                Sin límite de tamaño — cada archivo crea su propio contenido.
-                Word/PowerPoint/Excel: exportalos a PDF antes de subir, si no el alumno no va a poder verlos.
-              </span>
+              <span className="text-sm text-text">{t.admin.content.dropzoneText}</span>
+              <span className="text-xs text-neutral-500">{t.admin.content.dropzoneHint}</span>
             </>
           )}
         </label>
@@ -281,7 +284,7 @@ export default function CourseEditor({
 
       {rejected.length > 0 && (
         <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
-          No se subieron (formato no soportado para verse en la web, exportalos a PDF): {rejected.join(", ")}
+          {t.admin.content.rejectedFiles(rejected.join(", "))}
         </div>
       )}
 
@@ -302,17 +305,17 @@ export default function CourseEditor({
                     <span className="truncate text-sm text-text">{lesson.title}</span>
                     <Badge variant="neutral">{TYPE_LABEL[type]}</Badge>
                     {lesson.files && lesson.files.length > 1 && (
-                      <Badge variant="neutral">{lesson.files.length} archivos</Badge>
+                      <Badge variant="neutral">{t.admin.content.filesCount(lesson.files.length)}</Badge>
                     )}
-                    {!lesson.published && <Badge variant="warning">Oculto</Badge>}
+                    {!lesson.published && <Badge variant="warning">{t.admin.content.hidden}</Badge>}
                   </div>
                   {lesson.duration_minutes ? (
-                    <div className="mt-0.5 text-xs text-neutral-500">{lesson.duration_minutes} min</div>
+                    <div className="mt-0.5 text-xs text-neutral-500">{t.admin.content.minutes(lesson.duration_minutes)}</div>
                   ) : null}
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => setLessonDialog({ open: true, lesson })}>
                   <Pencil className="h-4 w-4" />
-                  Editar
+                  {t.admin.content.edit}
                 </Button>
                 <Button
                   variant="ghost"
@@ -320,7 +323,7 @@ export default function CourseEditor({
                   disabled={pending}
                   className="text-red-300 hover:bg-red-500/10 hover:text-red-300"
                   onClick={() => {
-                    if (confirm(`¿Eliminar «${lesson.title}»?`)) {
+                    if (confirm(t.admin.content.deleteConfirm(lesson.title))) {
                       startTransition(() => {
                         deleteLesson(lesson.id);
                       });
@@ -352,14 +355,14 @@ export default function CourseEditor({
                   )}
                 >
                   <Film className="h-3.5 w-3.5" />
-                  {hasUploadedVideo ? "Reemplazar video" : "Agregar video"}
+                  {hasUploadedVideo ? t.admin.content.replaceVideo : t.admin.content.addVideo}
                 </label>
                 {hasUploadedVideo && (
                   <button
                     type="button"
                     disabled={pending}
                     onClick={() => {
-                      if (confirm("¿Quitar el video?")) {
+                      if (confirm(t.admin.content.removeVideoConfirm)) {
                         startTransition(() => {
                           removeLessonVideo(lesson.id);
                         });
@@ -368,10 +371,10 @@ export default function CourseEditor({
                     className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-red-300 hover:bg-red-500/10 cursor-pointer"
                   >
                     <X className="h-3 w-3" />
-                    Quitar
+                    {t.admin.content.remove}
                   </button>
                 )}
-                {hasExternalVideo && <span className="text-xs text-neutral-500">Enlace externo</span>}
+                {hasExternalVideo && <span className="text-xs text-neutral-500">{t.admin.content.externalLink}</span>}
 
                 <span className="mx-1 h-4 w-px bg-divider" />
 
@@ -395,7 +398,7 @@ export default function CourseEditor({
                   )}
                 >
                   <Plus className="h-3.5 w-3.5" />
-                  Agregar archivo
+                  {t.admin.content.addFile}
                 </label>
 
                 {lesson.files && lesson.files.length > 0 && (
@@ -409,7 +412,7 @@ export default function CourseEditor({
                         <button
                           onClick={() => startTransition(() => { deleteLessonFile(f.id); })}
                           className="text-neutral-500 hover:text-red-300 cursor-pointer"
-                          aria-label={`Eliminar ${f.name}`}
+                          aria-label={t.admin.content.removeFileLabel(f.name)}
                         >
                           ×
                         </button>
@@ -423,9 +426,7 @@ export default function CourseEditor({
         })}
 
         {lessons.length === 0 && (
-          <p className="py-4 text-center text-sm text-neutral-500">
-            Todavía no hay contenido. Soltá un archivo arriba para empezar.
-          </p>
+          <p className="py-4 text-center text-sm text-neutral-500">{t.admin.content.empty}</p>
         )}
       </div>
 
@@ -434,6 +435,7 @@ export default function CourseEditor({
         onOpenChange={(open) => setLessonDialog((prev) => ({ ...prev, open }))}
         moduleId={moduleId ?? ""}
         lesson={lessonDialog.lesson}
+        t={t}
       />
     </div>
   );

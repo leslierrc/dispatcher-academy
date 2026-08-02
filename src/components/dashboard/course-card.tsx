@@ -4,13 +4,16 @@ import { PlayCircle } from "lucide-react";
 import { getCourseModules, getCourseProgress } from "@/lib/data";
 import { Progress } from "@/components/ui/progress";
 import type { Course } from "@/lib/types";
+import type { AppT } from "@/i18n/app";
 
 export default async function CourseCard({
   course,
   userId,
+  t,
 }: {
   course: Course;
   userId: string;
+  t: AppT;
 }) {
   const [modules, progress] = await Promise.all([
     getCourseModules(course.id),
@@ -49,9 +52,9 @@ export default async function CourseCard({
       <div className="flex flex-1 flex-col gap-3 p-5">
         <h3 className="font-heading text-lg text-text leading-snug line-clamp-2">{course.title}</h3>
         <div className="flex items-center justify-between text-xs text-neutral-400">
-          <span>{total} lecciones</span>
+          <span>{total} {t.courses.lessons}</span>
           <span>
-            {completed}/{total} completadas
+            {completed}/{total} {t.courses.completed}
           </span>
         </div>
         <Progress value={percent} />
@@ -62,7 +65,7 @@ export default async function CourseCard({
               : "mt-1 inline-flex h-8 items-center justify-center rounded-md bg-accent px-3 text-xs font-heading font-semibold text-white"
           }
         >
-          {percent === 0 ? "Comenzar" : percent === 100 ? "Repasar" : "Continuar"}
+          {percent === 0 ? t.courses.start : percent === 100 ? t.courses.review : t.courses.continue}
         </span>
       </div>
     </Link>

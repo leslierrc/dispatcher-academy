@@ -1,17 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2, Circle, FileText, Film, Lock, PlayCircle } from "lucide-react";
+import { CheckCircle2, Circle, FileText, Film, PlayCircle } from "lucide-react";
 import { requireUser } from "@/lib/auth-helpers";
 import { createClient } from "@/lib/supabase/server";
-import { getCourseWithModules, getCourseProgress } from "@/lib/data";
+import { getCourseWithModules, getCourseProgress, getCoursePlans } from "@/lib/data";
+import { getT } from "@/lib/locale";
 import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
+import CourseLockedNotice from "@/components/dashboard/course-locked-notice";
 
 export default async function CourseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const user = await requireUser();
   const supabase = await createClient();
+  const { t } = await getT();
 
   const course = await getCourseWithModules(slug);
   if (!course) notFound();
@@ -32,18 +34,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
   const percent = total ? Math.round((completed / total) * 100) : 0;
 
   if (!isEnrolled) {
-    return (
-      <div className="flex flex-col items-center gap-5 py-20 text-center">
-        <Lock className="h-12 w-12 text-accent-300" />
-        <h1 className="font-heading text-3xl text-text">Este curso requiere inscripción</h1>
-        <p className="max-w-md text-neutral-400">
-          Para acceder a {course.title} necesitas tener el plan activo. Elige un plan para desbloquear el contenido.
-        </p>
-        <Link href="/#precios">
-          <Button>Ver planes</Button>
-        </Link>
-      </div>
-    );
+    const plans = await getCoursePlans(course.id);
+    return <CourseLockedNotice course={{ ...course, plans: plans.filter((p) => p.active) }} />;
   }
 
   return (
@@ -62,13 +54,13 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           <h1 className="font-heading text-3xl text-text leading-tight">{course.title}</h1>
           <p className="text-neutral-300">{course.description}</p>
           <div className="flex items-center gap-3 text-sm text-neutral-400">
-            <span>{total} lecciones</span>
+            <span>{total} {t.courseDetail.lessons}</span>
             <span>·</span>
-            <span>{completed} completadas</span>
+            <span>{completed} {t.courseDetail.completedCount}</span>
           </div>
           <div className="max-w-md">
             <Progress value={percent} />
-            <span className="mt-1 block text-xs text-accent-300">{percent}% completado</span>
+            <span className="mt-1 block text-xs text-accent-300">{percent}% {t.courseDetail.percentCompleted}</span>
           </div>
         </div>
       </div>
@@ -87,7 +79,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                   <h2 className="font-heading text-lg text-text">{module.title}</h2>
                 </div>
                 <span className="text-xs text-neutral-400">
-                  {moduleDone}/{moduleLessons.length} lecciones
+                  {moduleDone}/{moduleLessons.length} {t.courseDetail.lessons}
                 </span>
               </div>
               <ul className="flex flex-col">

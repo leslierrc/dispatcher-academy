@@ -20,6 +20,7 @@ import { getLessonFileViewUrl } from "@/actions/content";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useAppI18n } from "@/hooks/use-app-i18n";
 import type { Lesson, LessonFile } from "@/lib/types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -77,6 +78,7 @@ export default function LessonPlayer({
   isComplete,
   courseTitle,
 }: LessonPlayerProps) {
+  const { t } = useAppI18n();
   const [completed, setCompleted] = useState(isComplete);
   const [pending, startTransition] = useTransition();
   const positionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -98,7 +100,7 @@ export default function LessonPlayer({
         url: "",
         name: file.name,
         loading: false,
-        error: "Este tipo de archivo no se puede ver dentro de la plataforma (solo PDF e imágenes). Pedile al administrador que lo suba como PDF.",
+        error: t.lesson.unsupportedFile,
       });
       return;
     }
@@ -109,7 +111,7 @@ export default function LessonPlayer({
       return;
     }
     setViewer({ open: true, url: result.url!, name: result.name ?? file.name, loading: false, error: null });
-  }, []);
+  }, [t]);
 
   const downloadFile = useCallback(async (file: LessonFile) => {
     setDownloadingId(file.id);
@@ -174,13 +176,13 @@ export default function LessonPlayer({
           ) : videoLocked ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center text-neutral-400">
               <Lock className="h-10 w-10 text-accent-300/60" />
-              <span className="text-sm text-text">Este video es parte del plan Medio o Pro</span>
-              <span className="text-xs text-neutral-500">Mejorá tu plan para verlo</span>
+              <span className="text-sm text-text">{t.lesson.videoLocked}</span>
+              <span className="text-xs text-neutral-500">{t.lesson.upgradeToWatch}</span>
             </div>
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-neutral-500">
               <Film className="h-10 w-10 text-accent-300/60" />
-              <span className="text-sm">Esta lección no tiene video</span>
+              <span className="text-sm">{t.lesson.noVideo}</span>
             </div>
           )}
         </div>
@@ -206,7 +208,7 @@ export default function LessonPlayer({
             <Link href={`/dashboard/lessons/${prev.id}`}>
               <Button variant="outline">
                 <ChevronLeft className="h-4 w-4" />
-                Anterior
+                {t.lesson.previous}
               </Button>
             </Link>
           ) : (
@@ -214,12 +216,12 @@ export default function LessonPlayer({
           )}
           <Button variant={completed ? "outline" : "default"} onClick={handleComplete} disabled={pending}>
             <CheckCircle2 className="h-4 w-4" />
-            {completed ? "Completada" : "Marcar como completada"}
+            {completed ? t.lesson.completed : t.lesson.markComplete}
           </Button>
           {next ? (
             <Link href={`/dashboard/lessons/${next.id}`}>
               <Button>
-                Siguiente
+                {t.lesson.next}
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -227,7 +229,7 @@ export default function LessonPlayer({
             <Link href="/dashboard/courses">
               <Button variant="outline">
                 <List className="h-4 w-4" />
-                Cursos
+                {t.lesson.courses}
               </Button>
             </Link>
           )}
@@ -237,7 +239,7 @@ export default function LessonPlayer({
       {/* Recursos de la lección */}
       <aside className="flex flex-col gap-4">
         <div className="rounded-lg border border-divider bg-surface/40 p-5">
-          <h2 className="font-heading text-lg text-text">Recursos de la lección</h2>
+          <h2 className="font-heading text-lg text-text">{t.lesson.resourcesTitle}</h2>
           {lesson.files && lesson.files.length > 0 ? (
             <ul className="mt-4 flex flex-col gap-2.5">
               {lesson.files.map((file) => (
@@ -254,7 +256,7 @@ export default function LessonPlayer({
                   {canDownload && (
                     <button
                       type="button"
-                      title="Descargar"
+                      title={t.lesson.download}
                       onClick={() => downloadFile(file)}
                       disabled={downloadingId === file.id}
                       className="flex-none rounded-md border border-divider bg-bg p-3 text-neutral-400 hover:border-accent/40 hover:text-accent-300 cursor-pointer disabled:opacity-60"
@@ -270,12 +272,10 @@ export default function LessonPlayer({
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-sm text-neutral-500">No hay archivos en esta lección.</p>
+            <p className="mt-3 text-sm text-neutral-500">{t.lesson.noFiles}</p>
           )}
           <p className="mt-4 text-[11px] leading-relaxed text-neutral-500">
-            {canDownload
-              ? "Podés ver los archivos dentro de la plataforma o descargarlos."
-              : "Los archivos se ven dentro de la plataforma y no se pueden descargar."}
+            {canDownload ? t.lesson.viewOrDownload : t.lesson.viewOnly}
           </p>
         </div>
       </aside>
@@ -284,7 +284,7 @@ export default function LessonPlayer({
         <DialogContent className="max-w-4xl w-[calc(100vw-2rem)] h-[85vh] flex flex-col p-4">
           <DialogHeader className="mb-2">
             <DialogTitle className="truncate pr-8">{viewer.name}</DialogTitle>
-            <DialogDescription>Vista protegida — este documento no se puede descargar.</DialogDescription>
+            <DialogDescription>{t.lesson.protectedView}</DialogDescription>
           </DialogHeader>
           <div className="relative flex-1 overflow-hidden rounded-md border border-divider bg-white" onContextMenu={blockContextMenu}>
             {viewer.loading && (

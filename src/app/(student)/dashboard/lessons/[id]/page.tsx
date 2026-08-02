@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth-helpers";
 import { createClient } from "@/lib/supabase/server";
 import { getLessonWithModule, getCourseModules, getCourseProgress } from "@/lib/data";
 import { resolveVideoUrl } from "@/lib/protected-content";
+import { getT } from "@/lib/locale";
 import LessonPlayer from "@/components/dashboard/lesson-player";
 import type { Lesson } from "@/lib/types";
 
@@ -10,6 +11,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
   const { id } = await params;
   const user = await requireUser();
   const supabase = await createClient();
+  const { t } = await getT();
 
   const lesson = await getLessonWithModule(id);
   if (!lesson) notFound();
@@ -44,7 +46,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       videoUrl={videoUrl}
       videoLocked={videoLocked}
       canDownload={canDownload}
-      viewerLabel={user.email ?? user.profile?.name ?? "Alumno"}
+      viewerLabel={user.email ?? user.profile?.name ?? t.shell.student}
       prev={prev}
       next={next}
       isComplete={!!progress[lesson.id]}

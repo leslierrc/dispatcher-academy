@@ -3,6 +3,7 @@
 import { requireUser } from "@/lib/auth-helpers";
 import { createClient } from "@/lib/supabase/server";
 import { resolveFileUrl } from "@/lib/protected-content";
+import { getT } from "@/lib/locale";
 
 // Genera una URL firmada nueva justo cuando el alumno hace clic en
 // "Ver" o "Descargar", en vez de dejar una guardada en la página desde
@@ -10,7 +11,7 @@ import { resolveFileUrl } from "@/lib/protected-content";
 // cliente autenticado normal: si RLS no le permite leer esa fila (no
 // inscrito y no admin), no habrá archivo que resolver.
 export async function getLessonFileViewUrl(fileId: string, wantDownload = false) {
-  const session = await requireUser();
+  const [session, { t }] = await Promise.all([requireUser(), getT()]);
   const supabase = await createClient();
 
   const { data: file } = await supabase
@@ -19,7 +20,7 @@ export async function getLessonFileViewUrl(fileId: string, wantDownload = false)
     .eq("id", fileId)
     .maybeSingle();
 
-  if (!file) return { error: "No tienes acceso a este archivo." };
+  if (!file) return { error: t.actions.content.noAccess };
 
   if (wantDownload && session.profile.role !== "admin") {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,12 +33,12 @@ export async function getLessonFileViewUrl(fileId: string, wantDownload = false)
       .maybeSingle();
 
     if (enrollment?.tier !== "pro") {
-      return { error: "Descargar este archivo requiere el plan Pro." };
+      return { error: t.actions.content.proRequired };
     }
   }
 
   const url = await resolveFileUrl(file.url, wantDownload ? file.name : undefined);
-  if (!url) return { error: "No se pudo generar el enlace." };
+  if (!url) return { error: t.actions.content.linkFailed };
 
   return { url, name: file.name };
 }

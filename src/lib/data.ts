@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Course, Lesson, ModuleWithLessons, Plan, Profile, SettingsValue, Subscription } from "@/lib/types";
+import type { Course, Enrollment, Lesson, ModuleWithLessons, Plan, Profile, SettingsValue, Subscription } from "@/lib/types";
 import { DEFAULT_SETTINGS } from "@/lib/constants";
 
 async function getClient() {
@@ -226,6 +226,24 @@ export async function getAdminSubscriptions() {
 
   if (error || !data) return [];
   return data as (Subscription & { profile?: { name: string | null; email: string | null } })[];
+}
+
+// ── Admin: alumnos inscritos (todos, paguen o no) ───────────
+// "subscriptions" solo tiene lo que pasó por Stripe. Esto es lo que
+// realmente responde "¿quién tiene acceso a qué?" — incluye lo
+// inscrito a mano desde Admin → Usuarios.
+export async function getAdminEnrollments() {
+  const supabase = await getClient();
+  const { data, error } = await supabase
+    .from("enrollments")
+    .select("*, profile:user_id(name, email), course:course_id(title, slug)")
+    .order("enrolled_at", { ascending: false });
+
+  if (error || !data) return [];
+  return data as (Enrollment & {
+    profile?: { name: string | null; email: string | null };
+    course?: { title: string; slug: string };
+  })[];
 }
 
 // ── Admin: categorías ──────────────────────────────────────
